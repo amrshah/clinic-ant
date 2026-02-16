@@ -33,11 +33,11 @@ const statusOptions: { value: string; label: string }[] = [
 export function AppointmentFormDialog({ open, onOpenChange, appointment }: AppointmentFormDialogProps) {
   const { pets } = usePets()
   const { owners } = useOwners()
-  const { data: staffList } = useSWR<Array<{ id: string; first_name: string; last_name: string; role: string }>>(
+  const { data: staffList } = useSWR<any>(
     open ? '/api/users' : null,
     fetcher
   )
-  const vets = (staffList ?? []).filter((s) => s.role === 'veterinarian')
+  const vets = Array.isArray(staffList) ? staffList.filter((s) => s.role === 'veterinarian') : []
   const isEditing = !!appointment
   const [submitting, setSubmitting] = useState(false)
   const initialized = useRef(false)

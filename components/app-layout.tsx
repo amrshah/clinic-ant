@@ -34,7 +34,7 @@ export function AppLayout({ children, breadcrumbs }: AppLayoutProps) {
               rel="noopener noreferrer"
               className="underline underline-offset-2 hover:text-foreground transition-colors"
             >
-              Silver Ant
+              Silver Ant Marketing
             </a>
             {' '}&middot;{' '}&copy; {new Date().getFullYear()} ClinicAnt
           </span>
