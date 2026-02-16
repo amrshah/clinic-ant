@@ -116,4 +116,4 @@ MIT
 
 ---
 
-Powered by [Silver Ant](https://silverantmarketing.com)
+Powered by [Silver Ant Marketing](https://silverantmarketing.com)
