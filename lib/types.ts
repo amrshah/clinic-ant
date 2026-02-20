@@ -87,8 +87,68 @@ export interface DashboardData {
     totalAppointments: number
     totalRecords: number
     todayAppointments: number
+    totalRevenue: number
+    lowStockAlerts: number
   }
   recentAppointments: Appointment[]
+  recentRecords: MedicalRecord[]
+}
+
+export interface Invoice {
+  id: string
+  organization_id: string
+  clinic_id: string | null
+  owner_id: string
+  appointment_id: string | null
+  status: 'draft' | 'sent' | 'paid' | 'cancelled' | 'overdue'
+  total_amount: number
+  tax_amount: number
+  currency: string
+  due_date: string | null
+  notes: string | null
+  created_at: string
+  updated_at: string
+  created_by: string | null
+}
+
+export interface InvoiceItem {
+  id: string
+  invoice_id: string
+  title: string
+  description: string | null
+  quantity: number
+  unit_price: number
+  total_price: number
+  category: 'service' | 'medication' | 'lab' | 'other' | 'product'
+  item_id: string | null
+  created_at: string
+}
+
+export interface InventoryItem {
+  id: string
+  organization_id: string
+  clinic_id: string | null
+  name: string
+  sku: string | null
+  category: string | null
+  unit: string
+  current_stock: number
+  low_stock_threshold: number
+  price: number
+  cost: number
+  created_at: string
+  updated_at: string
+  is_deleted: boolean
+}
+
+export interface InventoryTransaction {
+  id: string
+  item_id: string
+  type: 'in' | 'out' | 'adjustment' | 'return'
+  quantity: number
+  reason: string | null
+  created_at: string
+  created_by: string | null
 }
 
 export type NavItem = {

@@ -1,6 +1,6 @@
 export type UserRole = 'administrator' | 'veterinarian' | 'nurse_assistant' | 'reception' | 'technician' | 'client'
 
-export type Module = 'dashboard' | 'pets' | 'owners' | 'appointments' | 'medical_records' | 'settings' | 'assistant' | 'users' | 'audit_logs' | 'privacy'
+export type Module = 'dashboard' | 'pets' | 'owners' | 'appointments' | 'medical_records' | 'settings' | 'assistant' | 'users' | 'audit_logs' | 'privacy' | 'billing' | 'inventory'
 
 export type Action = 'view' | 'create' | 'edit' | 'delete' | 'export'
 
@@ -17,6 +17,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermission[]> = {
     { module: 'owners', actions: ['view', 'create', 'edit', 'delete', 'export'] },
     { module: 'appointments', actions: ['view', 'create', 'edit', 'delete', 'export'] },
     { module: 'medical_records', actions: ['view', 'create', 'edit', 'delete', 'export'] },
+    { module: 'billing', actions: ['view', 'create', 'edit', 'delete', 'export'] },
+    { module: 'inventory', actions: ['view', 'create', 'edit', 'delete', 'export'] },
     { module: 'settings', actions: ['view', 'edit'] },
     { module: 'assistant', actions: ['view'] },
     { module: 'users', actions: ['view', 'create', 'edit', 'delete'] },
@@ -29,6 +31,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermission[]> = {
     { module: 'owners', actions: ['view'] },
     { module: 'appointments', actions: ['view', 'create', 'edit'] },
     { module: 'medical_records', actions: ['view', 'create', 'edit'] },
+    { module: 'billing', actions: ['view'] },
+    { module: 'inventory', actions: ['view', 'edit'] },
     { module: 'settings', actions: ['view'] },
     { module: 'assistant', actions: ['view'] },
     { module: 'users', actions: ['view'] },
@@ -41,6 +45,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermission[]> = {
     { module: 'owners', actions: ['view'] },
     { module: 'appointments', actions: ['view', 'create', 'edit'] },
     { module: 'medical_records', actions: ['view', 'create'] },
+    { module: 'billing', actions: ['view'] },
+    { module: 'inventory', actions: ['view', 'edit'] },
     { module: 'settings', actions: ['view'] },
     { module: 'assistant', actions: ['view'] },
     { module: 'users', actions: ['view'] },
@@ -53,6 +59,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermission[]> = {
     { module: 'owners', actions: ['view', 'create', 'edit'] },
     { module: 'appointments', actions: ['view', 'create', 'edit', 'delete'] },
     { module: 'medical_records', actions: [] },
+    { module: 'billing', actions: ['view', 'create', 'edit'] },
+    { module: 'inventory', actions: ['view'] },
     { module: 'settings', actions: ['view'] },
     { module: 'assistant', actions: [] },
     { module: 'users', actions: ['view'] },
@@ -65,6 +73,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermission[]> = {
     { module: 'owners', actions: ['view'] },
     { module: 'appointments', actions: ['view'] },
     { module: 'medical_records', actions: ['view', 'create'] },
+    { module: 'billing', actions: ['view'] },
+    { module: 'inventory', actions: ['view', 'edit'] },
     { module: 'settings', actions: ['view'] },
     { module: 'assistant', actions: ['view'] },
     { module: 'users', actions: ['view'] },
@@ -77,6 +87,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermission[]> = {
     { module: 'owners', actions: [] },
     { module: 'appointments', actions: [] },
     { module: 'medical_records', actions: [] },
+    { module: 'billing', actions: [] },
+    { module: 'inventory', actions: [] },
     { module: 'settings', actions: [] },
     { module: 'assistant', actions: [] },
     { module: 'users', actions: [] },

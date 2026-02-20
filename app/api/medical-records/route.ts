@@ -1,18 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthContext, checkPermission, createAuditLog, isAuthContext } from '@/lib/api-helpers'
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const ctx = await getAuthContext()
   if (!isAuthContext(ctx)) return ctx
 
   const denied = checkPermission(ctx, 'medical_records', 'view')
   if (denied) return denied
 
-  const { data, error } = await ctx.supabase
+  const { searchParams } = new URL(req.url)
+  const petId = searchParams.get('petId')
+
+  let query = ctx.supabase
     .from('medical_records')
     .select('*, pets(id, name, species)')
     .eq('clinic_id', ctx.profile.clinic_id)
-    .order('date', { ascending: false })
+
+  if (petId) {
+    query = query.eq('pet_id', petId)
+  }
+
+  const { data, error } = await query.order('date', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

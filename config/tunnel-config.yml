@@ -1,0 +1,7 @@
+ingress:
+  - hostname: clinicant.samwebdevs.dpdns.org
+    service: http://clinic-ant:3000
+  - service: http_status:404
+
+# When using token-based auth, the tunnel name isn't needed in the config
+# as the token identifies the tunnel

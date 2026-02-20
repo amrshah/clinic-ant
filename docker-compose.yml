@@ -12,3 +12,23 @@ services:
     environment:
       - NODE_ENV=production
     restart: always
+    networks:
+      - clinic-network
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: clinic-ant-tunnel
+    command: tunnel run
+    volumes:
+      - ./config/tunnel-config.yml:/etc/cloudflared/config.yml
+    environment:
+      - TUNNEL_TOKEN=eyJhIjoiZDY5OWVhY2E4ZTA2NmUxYmZhZWU5Njc5ZWVjYjhmZTEiLCJ0IjoiNzA3MTg0MGYtNjIyNi00ZTZmLThkNWMtMTdiZTNkMTA3MmQyIiwicyI6Ik1XTm1OVEUwTUdRdE1UYzVZeTAwTXpVNExUbGtPV1V0WmpkaVpqTXdNR1E0WWpGaSJ9
+    restart: on-failure
+    depends_on:
+      - clinic-ant
+    networks:
+      - clinic-network
+
+networks:
+  clinic-network:
+    driver: bridge

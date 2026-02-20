@@ -12,6 +12,8 @@ import {
   Settings,
   ShieldCheck,
   ScrollText,
+  CreditCard,
+  Package,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -36,6 +38,8 @@ const navItems: { title: string; href: string; icon: typeof LayoutDashboard; mod
   { title: 'Owners', href: '/owners', icon: Users, module: 'owners' },
   { title: 'Appointments', href: '/appointments', icon: Calendar, module: 'appointments' },
   { title: 'Medical Records', href: '/medical-records', icon: FileText, module: 'medical_records' },
+  { title: 'Billing', href: '/billing', icon: CreditCard, module: 'billing' },
+  { title: 'Inventory', href: '/inventory', icon: Package, module: 'inventory' },
   { title: 'AI Assistant', href: '/assistant', icon: MessageSquare, module: 'assistant' },
 ]
 

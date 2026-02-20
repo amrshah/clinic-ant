@@ -4,12 +4,12 @@ import { useDashboard, usePets } from '@/lib/data-store'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { PawPrint, Users, Calendar, Clock, CheckCircle, AlertCircle, Search, Plus, FileText } from 'lucide-react'
+import { PawPrint, Users, Calendar, Clock, CheckCircle, AlertCircle, Search, Plus, FileText, CreditCard, Package } from 'lucide-react'
 import Link from 'next/link'
 import { type DashboardData } from '@/lib/types'
 
 export function DashboardContent({ initialData }: { initialData?: DashboardData }) {
-  const { stats, recentAppointments, isLoading } = useDashboard(initialData)
+  const { stats, recentAppointments, recentRecords, isLoading } = useDashboard(initialData)
   const { pets } = usePets()
 
   const statCards = [
@@ -26,16 +26,30 @@ export function DashboardContent({ initialData }: { initialData?: DashboardData 
       href: '/owners',
     },
     {
+      title: 'Total Records',
+      value: stats.totalRecords,
+      icon: FileText,
+      href: '/medical-records',
+    },
+    {
       title: 'Today',
       value: stats.todayAppointments,
       icon: Calendar,
       href: '/appointments',
     },
     {
-      title: 'Total Appts',
-      value: stats.totalAppointments,
-      icon: Clock,
-      href: '/appointments',
+      title: 'Revenue',
+      value: `$${stats.totalRevenue.toLocaleString()}`,
+      icon: CreditCard,
+      href: '/billing',
+      color: 'text-green-600',
+    },
+    {
+      title: 'Low Stock',
+      value: stats.lowStockAlerts,
+      icon: Package,
+      href: '/inventory',
+      color: stats.lowStockAlerts > 0 ? 'text-orange-600' : 'text-muted-foreground',
     },
   ]
 
@@ -62,7 +76,7 @@ export function DashboardContent({ initialData }: { initialData?: DashboardData 
   return (
     <div className="p-3 md:p-6 space-y-4 md:space-y-6">
       {/* Quick Actions - Mobile First */}
-      <div className="grid grid-cols-4 gap-2 md:hidden">
+      <div className="grid grid-cols-2 gap-2 md:hidden">
         {statCards.map((stat) => (
           <Link key={stat.title} href={stat.href}>
             <div className="flex flex-col items-center gap-1 p-3 rounded-xl bg-card border transition-colors active:bg-muted">
@@ -117,13 +131,13 @@ export function DashboardContent({ initialData }: { initialData?: DashboardData 
       </div>
 
       {/* Desktop Stats */}
-      <div className="hidden md:grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="hidden md:grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {statCards.map((stat) => (
           <Link key={stat.title} href={stat.href}>
-            <Card className="transition-colors hover:bg-muted/50 cursor-pointer">
+            <Card className="transition-colors hover:bg-muted/50 cursor-pointer h-full">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <stat.icon className="size-4 text-muted-foreground" />
+                <stat.icon className={`size-4 ${(stat as any).color || 'text-muted-foreground'}`} />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stat.value}</div>
@@ -193,39 +207,38 @@ export function DashboardContent({ initialData }: { initialData?: DashboardData 
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                 <FileText className="size-4 md:size-5 text-primary" />
-                Recent Patients
+                Recent History
               </CardTitle>
               <Button asChild variant="ghost" size="sm" className="text-xs">
-                <Link href="/pets">View All</Link>
+                <Link href="/medical-records">View All</Link>
               </Button>
             </div>
           </CardHeader>
           <CardContent className="pt-0">
-            {pets.length === 0 ? (
+            {!recentRecords || recentRecords.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-6 text-center">
                 <AlertCircle className="size-10 text-muted-foreground/50 mb-2" />
-                <p className="text-sm text-muted-foreground">No patients yet</p>
+                <p className="text-sm text-muted-foreground">No history recorded yet</p>
               </div>
             ) : (
               <div className="space-y-2">
-                {pets.slice(0, 4).map((pet) => (
+                {recentRecords.slice(0, 4).map((record) => (
                   <Link
-                    key={pet.id}
-                    href={`/pets/${pet.id}`}
-                    className="flex items-center gap-3 rounded-lg border p-2.5 transition-colors hover:bg-muted/50 active:bg-muted"
+                    key={record.id}
+                    href="/medical-records"
+                    className="flex flex-col gap-1 rounded-lg border p-2.5 transition-colors hover:bg-muted/50 active:bg-muted"
                   >
-                    <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 shrink-0">
-                      <PawPrint className="size-4 text-primary" />
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-medium text-sm truncate">{record.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {record.pets?.name || 'Unknown'} • {new Date(record.date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <Badge variant="secondary" className="shrink-0 text-[10px] uppercase py-0 h-4">
+                        {record.type}
+                      </Badge>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{pet.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {pet.breed} - {pet.owners?.display_name || 'Unknown'}
-                      </p>
-                    </div>
-                    <Badge variant="outline" className="shrink-0 text-xs">
-                      {pet.species}
-                    </Badge>
                   </Link>
                 ))}
               </div>

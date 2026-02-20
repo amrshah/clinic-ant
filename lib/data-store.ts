@@ -1,7 +1,10 @@
 'use client'
 
 import useSWR, { mutate } from 'swr'
-import type { Pet, Owner, Appointment, MedicalRecord, AgentSettings, DashboardData } from './types'
+import type {
+  Pet, Owner, Appointment, MedicalRecord, AgentSettings, DashboardData,
+  Invoice, InvoiceItem, InventoryItem, InventoryTransaction
+} from './types'
 
 const fetcher = async (url: string) => {
   const res = await fetch(url)
@@ -18,8 +21,9 @@ export function useDashboard(initialData?: DashboardData) {
     fallbackData: initialData,
   })
   return {
-    stats: data?.stats ?? { totalPets: 0, totalOwners: 0, totalAppointments: 0, totalRecords: 0, todayAppointments: 0 },
+    stats: data?.stats ?? { totalPets: 0, totalOwners: 0, totalAppointments: 0, totalRecords: 0, todayAppointments: 0, totalRevenue: 0, lowStockAlerts: 0 },
     recentAppointments: data?.recentAppointments ?? [],
+    recentRecords: data?.recentRecords ?? [],
     error,
     isLoading: !data && isLoading,
   }
@@ -193,10 +197,9 @@ export async function deleteAppointment(id: string) {
 
 // === Medical Records ===
 export function useMedicalRecords(petId?: string) {
-  const key = '/api/medical-records'
+  const key = petId ? `/api/medical-records?petId=${petId}` : '/api/medical-records'
   const { data, error, isLoading } = useSWR<MedicalRecord[]>(key, fetcher)
-  const records = petId ? (data ?? []).filter((r) => r.pet_id === petId) : data ?? []
-  return { records, error, isLoading }
+  return { records: data ?? [], error, isLoading }
 }
 
 export async function addMedicalRecord(body: Record<string, unknown>) {
@@ -240,4 +243,72 @@ export function updateAgentSettings(settings: Partial<AgentSettings>) {
   agentSettingsStore = { ...agentSettingsStore, ...settings }
   mutate('agent-settings')
   return agentSettingsStore
+}
+
+// === Billing ===
+export function useInvoices() {
+  const { data, error, isLoading } = useSWR<Invoice[]>('/api/invoices', fetcher)
+  return { invoices: data ?? [], error, isLoading }
+}
+
+export function useInvoice(id: string) {
+  const { data, error, isLoading } = useSWR<Invoice>(id ? `/api/invoices/${id}` : null, fetcher)
+  return { invoice: data ?? null, error, isLoading }
+}
+
+export async function addInvoice(body: Record<string, unknown>) {
+  const res = await fetch('/api/invoices', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Failed to add invoice' }))
+    throw new Error(err.error)
+  }
+  const data = await res.json()
+  mutate('/api/invoices')
+  mutate('/api/dashboard')
+  return data
+}
+
+// === Inventory ===
+export function useInventory() {
+  const { data, error, isLoading } = useSWR<InventoryItem[]>('/api/inventory', fetcher)
+  return { inventory: data ?? [], error, isLoading }
+}
+
+export function useInventoryItem(id: string) {
+  const { data, error, isLoading } = useSWR<InventoryItem>(id ? `/api/inventory/${id}` : null, fetcher)
+  return { item: data ?? null, error, isLoading }
+}
+
+export async function addInventoryItem(body: Record<string, unknown>) {
+  const res = await fetch('/api/inventory', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Failed to add item' }))
+    throw new Error(err.error)
+  }
+  const data = await res.json()
+  mutate('/api/inventory')
+  return data
+}
+
+export async function addInventoryTransaction(body: Record<string, unknown>) {
+  const res = await fetch('/api/inventory/transactions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Failed to add transaction' }))
+    throw new Error(err.error)
+  }
+  mutate('/api/inventory')
+  if (body.item_id) mutate(`/api/inventory/${body.item_id}`)
+  return true
 }

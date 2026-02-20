@@ -24,7 +24,7 @@ const recordTypeIcons: Record<string, React.ComponentType<{ className?: string }
 
 export function PetDetailContent({ petId }: PetDetailContentProps) {
   const { pet, isLoading: petLoading } = usePet(petId)
-  const { records } = useMedicalRecords(petId)
+  const { records, isLoading: recordsLoading } = useMedicalRecords(petId)
   const { appointments } = useAppointments()
   const { profile } = useAuth()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
@@ -98,10 +98,17 @@ export function PetDetailContent({ petId }: PetDetailContentProps) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2"><FileText className="size-5" />Medical History</CardTitle>
-              <CardDescription>{records.length} records on file</CardDescription>
+              <CardDescription>
+                {recordsLoading ? 'Loading records...' : `${records.length} records on file`}
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              {records.length === 0 ? (
+              {recordsLoading ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-4"></div>
+                  <p className="text-sm text-muted-foreground">Fetching medical history...</p>
+                </div>
+              ) : records.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">No medical records yet</div>
               ) : (
                 <div className="space-y-4">
