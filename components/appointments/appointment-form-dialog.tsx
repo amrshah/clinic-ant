@@ -8,8 +8,16 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { 
+  Select as ShadcnSelect, 
+  SelectContent as ShadcnSelectContent, 
+  SelectItem as ShadcnSelectItem, 
+  SelectTrigger as ShadcnSelectTrigger, 
+  SelectValue as ShadcnSelectValue 
+} from '@/components/ui/select'
+import { useToast } from '@/components/ui/use-toast'
 import useSWR from 'swr'
+import { useClinic } from '@/components/providers/clinic-provider'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -31,15 +39,17 @@ const statusOptions: { value: string; label: string }[] = [
 ]
 
 export function AppointmentFormDialog({ open, onOpenChange, appointment }: AppointmentFormDialogProps) {
+  const { currentClinicId } = useClinic()
   const { pets } = usePets()
   const { owners } = useOwners()
   const { data: staffList } = useSWR<any>(
-    open ? '/api/users' : null,
+    open ? (currentClinicId ? `/api/users?clinicId=${currentClinicId}` : '/api/users') : null,
     fetcher
   )
   const vets = Array.isArray(staffList) ? staffList.filter((s) => s.role === 'veterinarian') : []
   const isEditing = !!appointment
   const [submitting, setSubmitting] = useState(false)
+  const { toast } = useToast()
   const initialized = useRef(false)
 
   const [formData, setFormData] = useState({
@@ -91,12 +101,18 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment }: Appoi
         veterinarian_id: formData.veterinarian_id || null,
       }
       if (isEditing && appointment) {
-        await updateAppointment(appointment.id, payload)
+        await updateAppointment(appointment.id, payload, currentClinicId)
       } else {
-        await addAppointment(payload)
+        await addAppointment(payload, currentClinicId)
       }
       onOpenChange(false)
-    } catch { /* error */ } finally { setSubmitting(false) }
+    } catch (err: any) { 
+      toast({
+        title: "Scheduling Failed",
+        description: err.message || "An unexpected error occurred.",
+        variant: "destructive"
+      })
+    } finally { setSubmitting(false) }
   }
 
   return (
@@ -110,17 +126,17 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment }: Appoi
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="pet">Pet</Label>
-              <Select value={formData.pet_id} onValueChange={handlePetChange}>
-                <SelectTrigger id="pet"><SelectValue placeholder="Select pet" /></SelectTrigger>
-                <SelectContent>{pets.map((p) => <SelectItem key={p.id} value={p.id}>{p.name} ({p.species})</SelectItem>)}</SelectContent>
-              </Select>
+              <ShadcnSelect value={formData.pet_id} onValueChange={handlePetChange}>
+                <ShadcnSelectTrigger id="pet"><ShadcnSelectValue placeholder="ShadcnSelect pet" /></ShadcnSelectTrigger>
+                <ShadcnSelectContent>{pets.map((p) => <ShadcnSelectItem key={p.id} value={p.id}>{p.name} ({p.species})</ShadcnSelectItem>)}</ShadcnSelectContent>
+              </ShadcnSelect>
             </div>
             <div className="space-y-2">
               <Label htmlFor="owner">Owner</Label>
-              <Select value={formData.owner_id} onValueChange={(v) => setFormData((prev) => ({ ...prev, owner_id: v }))}>
-                <SelectTrigger id="owner"><SelectValue placeholder="Select owner" /></SelectTrigger>
-                <SelectContent>{owners.map((o) => <SelectItem key={o.id} value={o.id}>{o.display_name}</SelectItem>)}</SelectContent>
-              </Select>
+              <ShadcnSelect value={formData.owner_id} onValueChange={(v) => setFormData((prev) => ({ ...prev, owner_id: v }))}>
+                <ShadcnSelectTrigger id="owner"><ShadcnSelectValue placeholder="ShadcnSelect owner" /></ShadcnSelectTrigger>
+                <ShadcnSelectContent>{owners.map((o) => <ShadcnSelectItem key={o.id} value={o.id}>{o.display_name}</ShadcnSelectItem>)}</ShadcnSelectContent>
+              </ShadcnSelect>
             </div>
             <div className="space-y-2">
               <Label htmlFor="date">Date</Label>
@@ -132,27 +148,27 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment }: Appoi
             </div>
             <div className="space-y-2">
               <Label htmlFor="type">Type</Label>
-              <Select value={formData.type} onValueChange={(v) => setFormData((prev) => ({ ...prev, type: v }))}>
-                <SelectTrigger id="type"><SelectValue /></SelectTrigger>
-                <SelectContent>{typeOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
-              </Select>
+              <ShadcnSelect value={formData.type} onValueChange={(v) => setFormData((prev) => ({ ...prev, type: v }))}>
+                <ShadcnSelectTrigger id="type"><ShadcnSelectValue /></ShadcnSelectTrigger>
+                <ShadcnSelectContent>{typeOptions.map((o) => <ShadcnSelectItem key={o.value} value={o.value}>{o.label}</ShadcnSelectItem>)}</ShadcnSelectContent>
+              </ShadcnSelect>
             </div>
             <div className="space-y-2">
               <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(v) => setFormData((prev) => ({ ...prev, status: v }))}>
-                <SelectTrigger id="status"><SelectValue /></SelectTrigger>
-                <SelectContent>{statusOptions.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}</SelectContent>
-              </Select>
+              <ShadcnSelect value={formData.status} onValueChange={(v) => setFormData((prev) => ({ ...prev, status: v }))}>
+                <ShadcnSelectTrigger id="status"><ShadcnSelectValue /></ShadcnSelectTrigger>
+                <ShadcnSelectContent>{statusOptions.map((o) => <ShadcnSelectItem key={o.value} value={o.value}>{o.label}</ShadcnSelectItem>)}</ShadcnSelectContent>
+              </ShadcnSelect>
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="vet">Veterinarian</Label>
-            <Select value={formData.veterinarian_id} onValueChange={(v) => setFormData((prev) => ({ ...prev, veterinarian_id: v }))}>
-              <SelectTrigger id="vet"><SelectValue placeholder="Select veterinarian" /></SelectTrigger>
-              <SelectContent>
-                {vets.map((v) => <SelectItem key={v.id} value={v.id}>Dr. {v.first_name} {v.last_name}</SelectItem>)}
-              </SelectContent>
-            </Select>
+            <ShadcnSelect value={formData.veterinarian_id} onValueChange={(v) => setFormData((prev) => ({ ...prev, veterinarian_id: v }))}>
+              <ShadcnSelectTrigger id="vet"><ShadcnSelectValue placeholder="ShadcnSelect veterinarian" /></ShadcnSelectTrigger>
+              <ShadcnSelectContent>
+                {vets.map((v) => <ShadcnSelectItem key={v.id} value={v.id}>Dr. {v.first_name} {v.last_name}</ShadcnSelectItem>)}
+              </ShadcnSelectContent>
+            </ShadcnSelect>
           </div>
           <div className="space-y-2">
             <Label htmlFor="notes">Notes</Label>

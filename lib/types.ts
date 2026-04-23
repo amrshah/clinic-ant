@@ -44,7 +44,7 @@ export interface Appointment {
   date: string
   time: string
   type: 'checkup' | 'vaccination' | 'surgery' | 'grooming' | 'emergency' | 'follow-up'
-  status: 'scheduled' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled'
+  status: 'scheduled' | 'checked-in' | 'in-exam' | 'billing' | 'confirmed' | 'in-progress' | 'completed' | 'cancelled'
   notes: string | null
   veterinarian_id: string | null
   clinic_id: string
@@ -81,6 +81,7 @@ export interface AgentSettings {
 }
 
 export interface DashboardData {
+  clinicId: string | null
   stats: {
     totalPets: number
     totalOwners: number
@@ -155,4 +156,22 @@ export type NavItem = {
   title: string
   href: string
   icon: React.ComponentType<{ className?: string }>
+}
+
+export interface Clinic {
+  id: string
+  organization_id: string
+  name: string
+  address: string | null
+  city: string | null
+  province_state: string | null
+  postal_code: string | null
+  country: string | null
+  phone: string | null
+  email: string | null
+  timezone: string
+  tagline: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
 }

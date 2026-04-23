@@ -3,36 +3,64 @@ import { getAuthContext, checkPermission, createAuditLog, isAuthContext } from '
 
 const ENCRYPTION_KEY = process.env.OWNER_PII_ENCRYPTION_KEY || 'default-dev-key-change-me'
 
-export async function GET() {
-  const ctx = await getAuthContext()
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const clinicId = searchParams.get('clinicId')
+  const ctx = await getAuthContext(clinicId)
   if (!isAuthContext(ctx)) return ctx
 
   const denied = checkPermission(ctx, 'owners', 'view')
   if (denied) return denied
 
-  const { data, error } = await ctx.supabase.rpc('get_owners_decrypted', {
-    p_clinic_id: ctx.profile.clinic_id,
-    p_key: ENCRYPTION_KEY,
-  })
+  try {
+    const isConsolidated = ctx.profile.clinic_id === 'all'
+    let data = null
+    let error = null
 
-  if (error) {
-    // Fallback: fetch without decryption
-    const { data: fallback, error: fallbackErr } = await ctx.supabase
-      .from('owners')
-      .select('id, display_name, city, province_state, postal_code, notes, created_at, updated_at, clinic_id')
-      .eq('clinic_id', ctx.profile.clinic_id)
-      .eq('is_deleted', false)
-      .order('created_at', { ascending: false })
+    if (!isConsolidated) {
+      const rpcResult = await ctx.supabase.rpc('get_owners_decrypted', {
+        p_clinic_id: ctx.profile.clinic_id,
+        p_key: ENCRYPTION_KEY,
+      })
+      data = rpcResult.data
+      error = rpcResult.error
+    } else {
+      error = new Error("Bypassing RPC for consolidated view")
+    }
 
-    if (fallbackErr) return NextResponse.json({ error: fallbackErr.message }, { status: 500 })
-    return NextResponse.json(fallback)
+    if (error) {
+      if (!isConsolidated) console.error('RPC get_owners_decrypted failed:', error)
+      // Attempt fallback to non-encrypted data
+      let fallbackQuery = ctx.supabase
+        .from('owners')
+        .select('id, display_name, city, notes, created_at, updated_at, clinic_id')
+        .eq('is_deleted', false)
+        .order('created_at', { ascending: false })
+
+      if (!isConsolidated) {
+        fallbackQuery = fallbackQuery.eq('clinic_id', ctx.profile.clinic_id)
+      }
+
+      const { data: fallback, error: fallbackErr } = await fallbackQuery
+
+      if (fallbackErr) {
+        console.error('Fallback fetch failed:', fallbackErr)
+        return NextResponse.json({ error: 'Database access failed', details: fallbackErr.message }, { status: 500 })
+      }
+      return NextResponse.json(fallback || [])
+    }
+
+    return NextResponse.json(data || [])
+  } catch (err: any) {
+    console.error('Unexpected Owners API Error:', err)
+    return NextResponse.json({ error: 'Internal Server Error', details: err.message }, { status: 500 })
   }
-
-  return NextResponse.json(data)
 }
 
 export async function POST(req: NextRequest) {
-  const ctx = await getAuthContext()
+  const { searchParams } = new URL(req.url)
+  const clinicId = searchParams.get('clinicId')
+  const ctx = await getAuthContext(clinicId)
   if (!isAuthContext(ctx)) return ctx
 
   const denied = checkPermission(ctx, 'owners', 'create')
@@ -43,24 +71,26 @@ export async function POST(req: NextRequest) {
 
   const display_name = `${first_name} ${last_name}`
 
-  const { data, error } = await ctx.supabase.rpc('insert_owner_encrypted', {
-    p_org_id: ctx.profile.org_id,
-    p_clinic_id: ctx.profile.clinic_id,
-    p_first_name: first_name,
-    p_last_name: last_name,
-    p_email: email || null,
-    p_phone: phone || null,
-    p_address: address || null,
-    p_city: city || null,
-    p_province: province || null,
-    p_postal_code: postal_code || null,
-    p_display_name: display_name,
-    p_notes: notes || null,
-    p_created_by: ctx.user.id,
-    p_key: ENCRYPTION_KEY,
-  })
+  const targetClinicId = ctx.profile.clinic_id === 'all' ? ctx.profile.default_clinic_id : ctx.profile.clinic_id
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  const { data, error } = await ctx.supabase.from('owners').insert({
+    organization_id: ctx.profile.org_id,
+    clinic_id: targetClinicId,
+    first_name: first_name || null,
+    last_name: last_name || null,
+    email: email || null,
+    phone: phone || null,
+    address: address || null,
+    province: province || null,
+    display_name: display_name,
+    notes: notes || null,
+    created_by: ctx.user.id
+  }).select().single()
+
+  if (error) {
+    console.error('Database error creating owner:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
   await createAuditLog(ctx.supabase, {
     user_id: ctx.user.id,
@@ -68,9 +98,9 @@ export async function POST(req: NextRequest) {
     clinic_id: ctx.profile.clinic_id,
     action: 'create',
     module: 'owners',
-    record_id: data,
+    record_id: data.id,
     details: { display_name },
   })
 
-  return NextResponse.json({ id: data, display_name }, { status: 201 })
+  return NextResponse.json({ id: data.id, display_name }, { status: 201 })
 }

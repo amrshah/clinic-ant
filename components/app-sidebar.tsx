@@ -14,6 +14,7 @@ import {
   ScrollText,
   CreditCard,
   Package,
+  Send,
 } from 'lucide-react'
 import {
   Sidebar,
@@ -30,6 +31,7 @@ import {
 import { useAuth } from '@/components/providers/auth-provider'
 import { canAccessModule, type Module } from '@/lib/permissions'
 import Image from 'next/image'
+import { ClinicSwitcher } from '@/components/clinic/clinic-switcher'
 
 
 const navItems: { title: string; href: string; icon: typeof LayoutDashboard; module: Module }[] = [
@@ -40,6 +42,7 @@ const navItems: { title: string; href: string; icon: typeof LayoutDashboard; mod
   { title: 'Medical Records', href: '/medical-records', icon: FileText, module: 'medical_records' },
   { title: 'Billing', href: '/billing', icon: CreditCard, module: 'billing' },
   { title: 'Inventory', href: '/inventory', icon: Package, module: 'inventory' },
+  { title: 'Communications', href: '/communications', icon: Send, module: 'communications' },
   { title: 'AI Assistant', href: '/assistant', icon: MessageSquare, module: 'assistant' },
 ]
 
@@ -80,8 +83,8 @@ export function AppSidebar() {
         >
           <div className="flex size-9 items-center justify-center overflow-hidden rounded-lg">
             <Image
-              src="/logo.webp"
-              alt="ClinicAnt Logo"
+              src="/vetcare-logo-transparent.png"
+              alt="VetCare Logo"
               width={36}
               height={36}
               className="size-full object-contain"
@@ -89,10 +92,13 @@ export function AppSidebar() {
             />
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-semibold leading-none">ClinicAnt</span>
+            <span className="text-lg font-semibold leading-none">ClinicFlow</span>
             <span className="text-xs text-sidebar-foreground/70">Clinic Management</span>
           </div>
         </Link>
+        <div className="mt-4">
+          <ClinicSwitcher />
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
@@ -143,3 +149,4 @@ export function AppSidebar() {
     </Sidebar>
   )
 }
+

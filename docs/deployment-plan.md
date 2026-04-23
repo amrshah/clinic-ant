@@ -1,6 +1,6 @@
 # Deployment Plan: Docker & Coolify
 
-This plan outlines the steps to deploy ClinicAnt using Docker Desktop locally and via Coolify on WSL.
+This plan outlines the steps to deploy ClinicFlow using Docker Desktop locally and via Coolify on WSL.
 
 ## Prerequisites
 
@@ -11,9 +11,9 @@ This plan outlines the steps to deploy ClinicAnt using Docker Desktop locally an
 ## Configuration Files
 
 The following files have been created in the project root:
-1. **[Dockerfile](file:///d:/MyApps/clinic-ant/Dockerfile)**: Multi-stage production build.
-2. **[docker-compose.yml](file:///d:/MyApps/clinic-ant/docker-compose.yml)**: Orchestration for local/Coolify deployment.
-3. **[.dockerignore](file:///d:/MyApps/clinic-ant/.dockerignore)**: Build optimization.
+1. **[Dockerfile](file:///d:/MyApps/clinic-flow/Dockerfile)**: Multi-stage production build.
+2. **[docker-compose.yml](file:///d:/MyApps/clinic-flow/docker-compose.yml)**: Orchestration for local/Coolify deployment.
+3. **[.dockerignore](file:///d:/MyApps/clinic-flow/.dockerignore)**: Build optimization.
 
 ## Local Deployment (Docker Desktop)
 
@@ -55,3 +55,4 @@ To switch to a local Supabase instance later:
 1. Use the [Supabase CLI](https://supabase.com/docs/guides/resources/supabase-cli) to initialize a local project: `npx supabase init`.
 2. Update the `docker-compose.yml` to include the Supabase services.
 3. Update the `NEXT_PUBLIC_SUPABASE_URL` in your app container to point to the local Supabase container.
+

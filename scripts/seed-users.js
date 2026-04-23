@@ -18,7 +18,7 @@ const CLINIC_OTTAWA = 'c0000000-0000-0000-0000-000000000002'
 
 const users = [
   {
-    email: 'admin@clinicant.demo',
+    email: 'admin@ClinicFlow.demo',
     password: 'Admin123!',
     first_name: 'Sarah',
     last_name: 'Chen',
@@ -26,7 +26,7 @@ const users = [
     clinic_id: CLINIC_TORONTO,
   },
   {
-    email: 'vet@clinicant.demo',
+    email: 'vet@ClinicFlow.demo',
     password: 'Vet12345!',
     first_name: 'Dr. James',
     last_name: 'Wilson',
@@ -34,7 +34,7 @@ const users = [
     clinic_id: CLINIC_TORONTO,
   },
   {
-    email: 'nurse@clinicant.demo',
+    email: 'nurse@ClinicFlow.demo',
     password: 'Nurse123!',
     first_name: 'Emily',
     last_name: 'Martinez',
@@ -42,7 +42,7 @@ const users = [
     clinic_id: CLINIC_TORONTO,
   },
   {
-    email: 'reception@clinicant.demo',
+    email: 'reception@ClinicFlow.demo',
     password: 'Recep123!',
     first_name: 'David',
     last_name: 'Thompson',
@@ -50,7 +50,7 @@ const users = [
     clinic_id: CLINIC_TORONTO,
   },
   {
-    email: 'tech@clinicant.demo',
+    email: 'tech@ClinicFlow.demo',
     password: 'Tech1234!',
     first_name: 'Lisa',
     last_name: 'Park',
@@ -109,3 +109,4 @@ for (const u of users) {
   console.log('| ' + pad(u.role, 14) + ' | ' + pad(u.email, 24) + ' | ' + pad(u.password, 11) + ' |')
 }
 console.log('\nDone!')
+

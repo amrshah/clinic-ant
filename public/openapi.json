@@ -1,0 +1,104 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "VetCare API",
+    "description": "Production API for the VetCare Clinic Management Platform",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Local Development"
+    }
+  ],
+  "paths": {
+    "/owners": {
+      "get": {
+        "tags": ["Owners"],
+        "summary": "List all owners",
+        "parameters": [
+          { "name": "clinicId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "tags": ["Owners"],
+        "summary": "Create owner",
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Owner" } } }
+        },
+        "responses": { "201": { "description": "Created" } }
+      }
+    },
+    "/owners/{id}": {
+      "get": {
+        "tags": ["Owners"],
+        "summary": "Get owner details",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } },
+          { "name": "clinicId", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } }
+      },
+      "patch": {
+        "tags": ["Owners"],
+        "summary": "Update owner",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "Updated" } }
+      },
+      "delete": {
+        "tags": ["Owners"],
+        "summary": "Delete owner",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "204": { "description": "Deleted" } }
+      }
+    },
+    "/pets": {
+      "get": { "tags": ["Pets"], "summary": "List pets", "responses": { "200": { "description": "OK" } } },
+      "post": { "tags": ["Pets"], "summary": "Create pet", "responses": { "201": { "description": "Created" } } }
+    },
+    "/appointments": {
+      "get": { "tags": ["Appointments"], "summary": "List appointments", "responses": { "200": { "description": "OK" } } },
+      "post": { "tags": ["Appointments"], "summary": "Book appointment", "responses": { "201": { "description": "Created" } } }
+    },
+    "/medical-records": {
+      "get": {
+        "tags": ["Pets"],
+        "summary": "Fetch medical history in bulk",
+        "description": "Returns all medical records for a specific pet. Used by the patient timeline to show historical data in a single view.",
+        "parameters": [
+          {
+            "name": "petId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "The ID of the pet to fetch records for"
+          }
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": { "tags": ["Pets"], "summary": "Add medical record", "responses": { "201": { "description": "Created" } } }
+    },
+    "/billing/invoices": {
+      "get": { "tags": ["Billing"], "summary": "List invoices", "responses": { "200": { "description": "OK" } } }
+    },
+    "/cron/reminders": {
+      "post": { "tags": ["System"], "summary": "Trigger automated reminders", "responses": { "200": { "description": "OK" } } }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Owner": {
+        "type": "object",
+        "properties": {
+          "first_name": { "type": "string" },
+          "last_name": { "type": "string" },
+          "email": { "type": "string" },
+          "phone": { "type": "string" },
+          "address": { "type": "string" },
+          "city": { "type": "string" }
+        }
+      }
+    }
+  }
+}

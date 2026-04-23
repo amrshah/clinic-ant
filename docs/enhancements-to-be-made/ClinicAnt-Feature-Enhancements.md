@@ -1,5 +1,5 @@
 ```markdown
-# ClinicAnt Feature Enhancement Roadmap
+# ClinicFlow Feature Enhancement Roadmap
 
 Based on competitive analysis and industry standards for Veterinary Practice Management Systems (PMS) and expansion into Human Healthcare (EMR/EHR).
 

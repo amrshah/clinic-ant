@@ -54,8 +54,8 @@ export default function SignUpPage() {
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border bg-card p-1 shadow-sm">
             <Image
-              src="/logo.webp"
-              alt="ClinicAnt Logo"
+              src="/vetcare-logo-transparent.png"
+              alt="VetCare Logo"
               width={56}
               height={56}
               className="size-full object-contain"
@@ -63,7 +63,7 @@ export default function SignUpPage() {
             />
           </div>
           <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
-          <CardDescription>Join your clinic on ClinicAnt</CardDescription>
+          <CardDescription>Join your clinic on ClinicFlow</CardDescription>
         </CardHeader>
         <form onSubmit={handleSignUp}>
           <CardContent className="space-y-4">
@@ -109,3 +109,4 @@ export default function SignUpPage() {
     </div>
   )
 }
+

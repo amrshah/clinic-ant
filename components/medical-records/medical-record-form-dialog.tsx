@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useClinic } from '@/components/providers/clinic-provider'
 
 interface MedicalRecordFormDialogProps {
   open: boolean
@@ -23,6 +24,7 @@ const typeOptions: { value: MedicalRecord['type']; label: string }[] = [
 ]
 
 export function MedicalRecordFormDialog({ open, onOpenChange, petId: initialPetId }: MedicalRecordFormDialogProps) {
+  const { currentClinicId } = useClinic()
   const { pets } = usePets()
   const [submitting, setSubmitting] = useState(false)
 
@@ -43,7 +45,7 @@ export function MedicalRecordFormDialog({ open, onOpenChange, petId: initialPetI
     e.preventDefault()
     setSubmitting(true)
     try {
-      await addMedicalRecord(formData)
+      await addMedicalRecord(formData, currentClinicId)
       onOpenChange(false)
     } catch { /* error */ } finally { setSubmitting(false) }
   }

@@ -3,7 +3,7 @@
 ## Session Date: 2026-02-20
 
 ### Objective
-Implement the foundational Billing and Inventory modules for ClinicAnt, including database schema, API logic, and UI dashboards.
+Implement the foundational Billing and Inventory modules for ClinicFlow, including database schema, API logic, and UI dashboards.
 
 ### Work Done
 - **Database Schema**: 
@@ -42,3 +42,4 @@ Implement the foundational Billing and Inventory modules for ClinicAnt, includin
 - The database requires script execution in numerical order (`001-014`).
 - UUIDs in seed scripts must be valid hexadecimal.
 - Dashboard cards now auto-calculate from real database totals (filtered by `clinic_id`).
+

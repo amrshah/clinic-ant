@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { type InventoryItem } from '@/lib/types'
 
-export async function getInventory() {
+export async function getInventory(requestedClinicId?: string | null) {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -19,12 +19,20 @@ export async function getInventory() {
         throw new Error('Profile not found')
     }
 
-    const { data, error } = await supabase
+    const isConsolidated = requestedClinicId === 'all'
+    const clinicId = isConsolidated ? null : (requestedClinicId || profile.default_clinic_id)
+
+    let query = supabase
         .from('inventory_items')
         .select('*')
-        .eq('clinic_id', profile.default_clinic_id)
         .eq('is_deleted', false)
         .order('name', { ascending: true })
+
+    if (!isConsolidated && clinicId) {
+        query = query.eq('clinic_id', clinicId)
+    }
+
+    const { data, error } = await query
 
     if (error) {
         throw new Error(error.message)

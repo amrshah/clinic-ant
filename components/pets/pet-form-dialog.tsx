@@ -10,10 +10,9 @@ import { Textarea } from '@/components/ui/textarea'
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Plus, UserPlus } from 'lucide-react'
+import { useClinic } from '@/components/providers/clinic-provider'
 
 interface PetFormDialogProps {
   open: boolean
@@ -32,6 +31,7 @@ const speciesOptions = [
 ]
 
 export function PetFormDialog({ open, onOpenChange, pet, preselectedOwnerId }: PetFormDialogProps) {
+  const { currentClinicId } = useClinic()
   const { owners } = useOwners()
   const isEditing = !!pet
   const [submitting, setSubmitting] = useState(false)
@@ -76,7 +76,7 @@ export function PetFormDialog({ open, onOpenChange, pet, preselectedOwnerId }: P
     if (!quickOwner.first_name || !quickOwner.last_name) return
     setAddingOwner(true)
     try {
-      const newOwner = await addOwner(quickOwner)
+      const newOwner = await addOwner(quickOwner, currentClinicId)
       setFormData(prev => ({ ...prev, owner_id: newOwner.id }))
       setShowQuickAddOwner(false)
       setQuickOwner({ first_name: '', last_name: '', email: '', phone: '' })
@@ -99,9 +99,9 @@ export function PetFormDialog({ open, onOpenChange, pet, preselectedOwnerId }: P
         owner_id: formData.owner_id, notes: formData.notes || null,
       }
       if (isEditing && pet) {
-        await updatePet(pet.id, body)
+        await updatePet(pet.id, body, currentClinicId)
       } else {
-        await addPet(body)
+        await addPet(body, currentClinicId)
       }
       onOpenChange(false)
     } catch { /* error handling */ } finally { setSubmitting(false) }

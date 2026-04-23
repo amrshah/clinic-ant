@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { type Invoice } from '@/lib/types'
 
-export async function getInvoices() {
+export async function getInvoices(requestedClinicId?: string | null) {
     const supabase = await createClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
@@ -19,11 +19,19 @@ export async function getInvoices() {
         throw new Error('Profile not found')
     }
 
-    const { data, error } = await supabase
+    const isConsolidated = requestedClinicId === 'all'
+    const clinicId = isConsolidated ? null : (requestedClinicId || profile.default_clinic_id)
+
+    let query = supabase
         .from('invoices')
         .select('*, owners(id, display_name)')
-        .eq('clinic_id', profile.default_clinic_id)
         .order('created_at', { ascending: false })
+
+    if (!isConsolidated && clinicId) {
+        query = query.eq('clinic_id', clinicId)
+    }
+
+    const { data, error } = await query
 
     if (error) {
         throw new Error(error.message)

@@ -36,10 +36,11 @@ export function AppLayout({ children, breadcrumbs }: AppLayoutProps) {
             >
               Silver Ant Marketing
             </a>
-            {' '}&middot;{' '}&copy; {new Date().getFullYear()} ClinicAnt
+            {' '}&middot;{' '}&copy; {new Date().getFullYear()} ClinicFlow
           </span>
         </footer>
       </SidebarInset>
     </SidebarProvider>
   )
 }
+

@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
 import { getDashboardData } from '@/lib/api/dashboard'
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const clinicId = searchParams.get('clinicId')
+
   try {
-    const data = await getDashboardData()
+    const data = await getDashboardData(clinicId)
     return NextResponse.json(data)
   } catch (error: any) {
     if (error.message === 'Unauthorized') {

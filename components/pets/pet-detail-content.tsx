@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { usePet, useMedicalRecords, useAppointments } from '@/lib/data-store'
+import { usePet, useMedicalRecords, useAppointments, useInvoices } from '@/lib/data-store'
 import { useAuth } from '@/components/providers/auth-provider'
 import { hasPermission } from '@/lib/permissions'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import {
   PawPrint, User, Calendar, FileText, Edit, ArrowLeft,
-  Syringe, Stethoscope, Pill, FlaskConical, StickyNote,
+  Syringe, Stethoscope, Pill, FlaskConical, StickyNote, CreditCard,
 } from 'lucide-react'
 import { PetFormDialog } from './pet-form-dialog'
 
@@ -26,6 +26,7 @@ export function PetDetailContent({ petId }: PetDetailContentProps) {
   const { pet, isLoading: petLoading } = usePet(petId)
   const { records, isLoading: recordsLoading } = useMedicalRecords(petId)
   const { appointments } = useAppointments()
+  const { invoices } = useInvoices()
   const { profile } = useAuth()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
 
@@ -34,6 +35,10 @@ export function PetDetailContent({ petId }: PetDetailContentProps) {
   const petAppointments = appointments
     .filter((a) => a.pet_id === petId)
     .sort((a, b) => b.date.localeCompare(a.date))
+
+  const activeInvoices = pet ? invoices
+    .filter((i) => i.owner_id === pet.owner_id && ['sent', 'overdue'].includes(i.status))
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) : []
 
   const calculateAge = (dob: string) => {
     const today = new Date()
@@ -170,6 +175,37 @@ export function PetDetailContent({ petId }: PetDetailContentProps) {
                       <Badge variant={apt.status === 'completed' ? 'secondary' : apt.status === 'confirmed' ? 'default' : 'outline'}>{apt.status}</Badge>
                     </div>
                   ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><CreditCard className="size-5" />Billing</CardTitle>
+              <CardDescription>Unpaid invoices for owner</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {activeInvoices.length === 0 ? (
+                <div className="text-center py-4 text-muted-foreground text-sm">No pending invoices</div>
+              ) : (
+                <div className="space-y-3">
+                  {activeInvoices.slice(0, 3).map((inv) => (
+                    <div key={inv.id} className="flex justify-between items-center text-sm border-b pb-2 last:border-0 last:pb-0">
+                      <div>
+                        <p className="font-semibold text-primary">${Number(inv.total_amount).toLocaleString()}</p>
+                        <p className="text-muted-foreground text-xs">Due: {new Date(inv.due_date).toLocaleDateString()}</p>
+                      </div>
+                      <Badge variant={inv.status === 'overdue' ? 'destructive' : 'secondary'} className="capitalize">
+                        {inv.status}
+                      </Badge>
+                    </div>
+                  ))}
+                  {activeInvoices.length > 3 && (
+                    <Button variant="link" className="w-full text-xs h-auto p-0 mt-2" asChild>
+                      <Link href="/billing">View all {activeInvoices.length} invoices</Link>
+                    </Button>
+                  )}
                 </div>
               )}
             </CardContent>

@@ -1,18 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAuthContext, checkPermission, createAuditLog, isAuthContext } from '@/lib/api-helpers'
 
-export async function GET() {
-  const ctx = await getAuthContext()
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url)
+  const clinicId = searchParams.get('clinicId')
+  const ctx = await getAuthContext(clinicId)
   if (!isAuthContext(ctx)) return ctx
 
   const denied = checkPermission(ctx, 'users', 'view')
   if (denied) return denied
 
-  const { data, error } = await ctx.supabase
+  let query = ctx.supabase
     .from('profiles')
     .select('*')
     .eq('organization_id', ctx.profile.org_id)
-    .order('created_at', { ascending: false })
+  
+  if (ctx.profile.clinic_id !== 'all') {
+    query = query.eq('default_clinic_id', ctx.profile.clinic_id)
+  }
+
+  const { data, error } = await query.order('created_at', { ascending: false })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

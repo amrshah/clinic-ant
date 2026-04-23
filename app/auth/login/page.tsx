@@ -43,15 +43,15 @@ export default function LoginPage() {
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border bg-card p-1 shadow-sm">
             <Image
-              src="/logo.webp"
-              alt="ClinicAnt Logo"
+              src="/vetcare-logo-transparent.png"
+              alt="VetCare Logo"
               width={56}
               height={56}
               className="size-full object-contain"
               priority
             />
           </div>
-          <CardTitle className="text-2xl font-bold">ClinicAnt</CardTitle>
+          <CardTitle className="text-2xl font-bold">ClinicFlow</CardTitle>
           <CardDescription>Sign in to your clinic dashboard</CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
@@ -104,3 +104,4 @@ export default function LoginPage() {
     </div>
   )
 }
+

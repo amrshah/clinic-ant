@@ -1,0 +1,30 @@
+/**
+ * GlitchTip Server-Side Configuration (via @sentry/nextjs)
+ * Uses SENTRY_DSN from environment. Falls back to stdout-only if not set.
+ * DSN: https://8e3eb96a6cd347648a51b2aa456c5bf8@app.glitchtip.com/22080
+ */
+import * as Sentry from '@sentry/nextjs'
+
+const dsn = process.env.SENTRY_DSN
+
+if (dsn) {
+  Sentry.init({
+    dsn,
+
+    environment: process.env.NODE_ENV ?? 'development',
+    release: process.env.NEXT_PUBLIC_APP_VERSION ?? 'unknown',
+
+    // 1% in production — GlitchTip recommendation to save disk space.
+    tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.01 : 1.0,
+
+    // GlitchTip does not support session tracking.
+    autoSessionTracking: false,
+
+    debug: process.env.NODE_ENV !== 'production',
+  })
+} else {
+  // No DSN — stdout logger in lib/logger.ts is the sole sink.
+  if (process.env.NODE_ENV !== 'test') {
+    console.warn('[monitoring] SENTRY_DSN not set — GlitchTip disabled; stdout fallback active.')
+  }
+}

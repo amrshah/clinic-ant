@@ -1,7 +1,9 @@
 'use client'
 
-import React from 'react'
-import { useInvoices } from '@/lib/data-store'
+import React, { useState } from 'react'
+import { useInvoices, updateInvoice } from '@/lib/data-store'
+import { InvoiceFormDialog } from './invoice-form-dialog'
+import { MockPaymentDialog } from './mock-payment-dialog'
 import {
     Card,
     CardContent,
@@ -25,20 +27,42 @@ import {
     CheckCircle,
     AlertCircle,
     Plus,
+    Building2,
 } from 'lucide-react'
+import type { Invoice } from '@/lib/types'
+import { useClinic } from '@/components/providers/clinic-provider'
+import { useClinics } from '@/lib/data-store'
+import { Progress } from '@/components/ui/progress'
 
 export function BillingContent() {
     const { invoices, isLoading } = useInvoices()
+    const { clinics } = useClinics()
+    const { currentClinicId } = useClinic()
+    const isConsolidated = currentClinicId === 'all'
+    const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false)
+    const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
 
     const stats = {
         totalRevenue: invoices
             .filter((i) => i.status === 'paid')
             .reduce((acc, i) => acc + Number(i.total_amount), 0),
         outstanding: invoices
-            .filter((i) => ['sent', 'overdue'].includes(i.status))
+            .filter((i) => ['sent', 'overdue', 'draft'].includes(i.status))
             .reduce((acc, i) => acc + Number(i.total_amount), 0),
         paidCount: invoices.filter((i) => i.status === 'paid').length,
         draftCount: invoices.filter((i) => i.status === 'draft').length,
+    }
+
+    const revenueByBranch = isConsolidated ? clinics.map(clinic => {
+        const clinicInvoices = invoices.filter(i => i.clinic_id === clinic.id && i.status === 'paid')
+        const revenue = clinicInvoices.reduce((acc, i) => acc + Number(i.total_amount), 0)
+        return { name: clinic.name, revenue }
+    }).sort((a, b) => b.revenue - a.revenue) : []
+
+    const maxRevenue = Math.max(...revenueByBranch.map(r => r.revenue), 1)
+
+    const handlePaymentSuccess = async (invoiceId: string) => {
+        await updateInvoice(invoiceId, { status: 'paid' }, currentClinicId)
     }
 
     if (isLoading) {
@@ -62,7 +86,7 @@ export function BillingContent() {
                     <h1 className="text-2xl font-bold">Billing & Invoicing</h1>
                     <p className="text-muted-foreground text-sm">Manage clinic revenue and patient invoices.</p>
                 </div>
-                <Button className="shrink-0">
+                <Button className="shrink-0" onClick={() => setInvoiceDialogOpen(true)}>
                     <Plus className="size-4 mr-2" />
                     Create Invoice
                 </Button>
@@ -115,6 +139,35 @@ export function BillingContent() {
                     </CardContent>
                 </Card>
             </div>
+
+            {isConsolidated && (
+                <Card className="bg-primary/5 border-primary/20">
+                    <CardHeader className="pb-3">
+                        <div className="flex items-center gap-2">
+                            <div className="p-2 bg-primary/10 rounded-md">
+                                <Building2 className="size-4 text-primary" />
+                            </div>
+                            <div>
+                                <CardTitle className="text-lg">Enterprise Analytics</CardTitle>
+                                <CardDescription>Revenue breakdown by clinic branch</CardDescription>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {revenueByBranch.map(branch => (
+                                <div key={branch.name} className="space-y-1.5">
+                                    <div className="flex items-center justify-between text-sm">
+                                        <span className="font-medium">{branch.name}</span>
+                                        <span className="text-muted-foreground font-semibold">${branch.revenue.toLocaleString()}</span>
+                                    </div>
+                                    <Progress value={(branch.revenue / maxRevenue) * 100} className="h-2" />
+                                </div>
+                            ))}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             <Card>
                 <CardHeader>
@@ -171,9 +224,12 @@ export function BillingContent() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="sm">
-                                                View
-                                            </Button>
+                                            {invoice.status !== 'paid' && invoice.status !== 'cancelled' && (
+                                                <Button size="sm" onClick={() => setSelectedInvoice(invoice)}>
+                                                    <CreditCard className="size-4 mr-2" />
+                                                    Pay
+                                                </Button>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -182,6 +238,15 @@ export function BillingContent() {
                     </Table>
                 </CardContent>
             </Card>
+            
+            <InvoiceFormDialog open={invoiceDialogOpen} onOpenChange={setInvoiceDialogOpen} />
+            
+            <MockPaymentDialog 
+                open={!!selectedInvoice} 
+                onOpenChange={(open) => !open && setSelectedInvoice(null)} 
+                invoice={selectedInvoice}
+                onPaymentSuccess={handlePaymentSuccess}
+            />
         </div>
     )
 }

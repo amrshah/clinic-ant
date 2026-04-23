@@ -70,7 +70,7 @@ export function AgentSettingsDialog({ open, onOpenChange }: AgentSettingsDialogP
     const defaultSettings = {
       model: 'anthropic/claude-opus-4.5',
       temperature: 0.7,
-      systemPrompt: `You are a helpful veterinary assistant for ClinicAnt. You help staff with:
+      systemPrompt: `You are a helpful veterinary assistant for ClinicFlow. You help staff with:
 - Looking up patient and owner information
 - Scheduling appointments
 - Answering common veterinary questions
@@ -216,3 +216,4 @@ Always be professional, empathetic, and accurate in your responses.`,
     </Dialog>
   )
 }
+

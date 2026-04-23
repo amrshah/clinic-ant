@@ -3,8 +3,10 @@ import { getAuthContext, checkPermission, createAuditLog, isAuthContext } from '
 
 const ENCRYPTION_KEY = process.env.OWNER_PII_ENCRYPTION_KEY || 'default-dev-key-change-me'
 
-export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const ctx = await getAuthContext()
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { searchParams } = new URL(req.url)
+  const clinicId = searchParams.get('clinicId')
+  const ctx = await getAuthContext(clinicId)
   if (!isAuthContext(ctx)) return ctx
 
   const denied = checkPermission(ctx, 'owners', 'view')
@@ -12,24 +14,47 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
   const { id } = await params
 
-  const { data, error } = await ctx.supabase.rpc('get_owner_by_id_decrypted', {
-    p_owner_id: id,
-    p_clinic_id: ctx.profile.clinic_id,
-    p_key: ENCRYPTION_KEY,
-  })
+  const isConsolidated = ctx.profile.clinic_id === 'all'
+  
+  // Hardened Fetch: Get the record directly first to prevent 404s if RPC fails
+  const { data: rawOwner, error: rawError } = await ctx.supabase
+    .from('owners')
+    .select('*')
+    .eq('id', id)
+    .single()
 
-  if (error || !data || (Array.isArray(data) && data.length === 0)) {
+  if (rawError || !rawOwner) {
     return NextResponse.json({ error: 'Owner not found' }, { status: 404 })
   }
 
-  const owner = Array.isArray(data) ? data[0] : data
+  let owner = rawOwner
+
+  // If we are not in consolidated mode, attempt to get decrypted data via RPC
+  if (!isConsolidated) {
+    const { data: decryptedData, error: rpcError } = await ctx.supabase.rpc('get_owner_by_id_decrypted', {
+      p_owner_id: id,
+      p_clinic_id: ctx.profile.clinic_id,
+      p_key: ENCRYPTION_KEY,
+    })
+    
+    if (!rpcError && decryptedData) {
+      owner = Array.isArray(decryptedData) ? decryptedData[0] : decryptedData
+    } else {
+      console.warn('RPC get_owner_by_id_decrypted failed or returned empty. Falling back to raw data.', rpcError)
+    }
+  }
 
   // Also fetch the owner's pets
-  const { data: pets } = await ctx.supabase
+  let petsQuery = ctx.supabase
     .from('pets')
     .select('*')
     .eq('owner_id', id)
-    .eq('clinic_id', ctx.profile.clinic_id)
+  
+  if (!isConsolidated) {
+    petsQuery = petsQuery.eq('clinic_id', ctx.profile.clinic_id)
+  }
+
+  const { data: pets } = await petsQuery
 
   await createAuditLog(ctx.supabase, {
     user_id: ctx.user.id,
@@ -45,7 +70,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const ctx = await getAuthContext()
+  const { searchParams } = new URL(req.url)
+  const clinicId = searchParams.get('clinicId')
+  const ctx = await getAuthContext(clinicId)
   if (!isAuthContext(ctx)) return ctx
 
   const denied = checkPermission(ctx, 'owners', 'edit')
@@ -57,9 +84,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { first_name, last_name, email, phone, address, city, province, postal_code, notes } = body
   const display_name = first_name && last_name ? `${first_name} ${last_name}` : undefined
 
+  const targetClinicId = ctx.profile.clinic_id === 'all' ? ctx.profile.default_clinic_id : ctx.profile.clinic_id
+
   const { error } = await ctx.supabase.rpc('update_owner_encrypted', {
     p_owner_id: id,
-    p_clinic_id: ctx.profile.clinic_id,
+    p_clinic_id: targetClinicId,
     p_first_name: first_name || null,
     p_last_name: last_name || null,
     p_email: email || null,
@@ -88,20 +117,28 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   return NextResponse.json({ success: true })
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const ctx = await getAuthContext()
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { searchParams } = new URL(req.url)
+  const clinicId = searchParams.get('clinicId')
+  const ctx = await getAuthContext(clinicId)
   if (!isAuthContext(ctx)) return ctx
 
   const denied = checkPermission(ctx, 'owners', 'delete')
   if (denied) return denied
 
   const { id } = await params
+  const isConsolidated = ctx.profile.clinic_id === 'all'
 
-  const { error } = await ctx.supabase
+  let deleteQuery = ctx.supabase
     .from('owners')
     .delete()
     .eq('id', id)
-    .eq('clinic_id', ctx.profile.clinic_id)
+  
+  if (!isConsolidated) {
+    deleteQuery = deleteQuery.eq('clinic_id', ctx.profile.clinic_id)
+  }
+
+  const { error } = await deleteQuery
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 

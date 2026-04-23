@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuthContext, checkPermission, createAuditLog, isAuthContext } from '@/lib/api-helpers'
 
 export async function GET(req: NextRequest) {
-  const ctx = await getAuthContext()
+  const { searchParams } = new URL(req.url)
+  const requestedClinicId = searchParams.get('clinicId')
+  const ctx = await getAuthContext(requestedClinicId)
   if (!isAuthContext(ctx)) return ctx
 
   const denied = checkPermission(ctx, 'medical_records', 'view')
   if (denied) return denied
 
-  const { searchParams } = new URL(req.url)
   const petId = searchParams.get('petId')
 
   let query = ctx.supabase
@@ -28,7 +29,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const ctx = await getAuthContext()
+  const { searchParams } = new URL(req.url)
+  const clinicId = searchParams.get('clinicId')
+  const ctx = await getAuthContext(clinicId)
   if (!isAuthContext(ctx)) return ctx
 
   const denied = checkPermission(ctx, 'medical_records', 'create')
@@ -36,12 +39,14 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json()
 
+  const targetClinicId = ctx.profile.clinic_id === 'all' ? ctx.profile.default_clinic_id : ctx.profile.clinic_id
+
   const { data, error } = await ctx.supabase
     .from('medical_records')
     .insert({
       ...body,
       organization_id: ctx.profile.org_id,
-      clinic_id: ctx.profile.clinic_id,
+      clinic_id: targetClinicId,
       veterinarian_id: ctx.user.id,
     })
     .select('*, pets(id, name, species)')

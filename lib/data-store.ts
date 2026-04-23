@@ -3,8 +3,9 @@
 import useSWR, { mutate } from 'swr'
 import type {
   Pet, Owner, Appointment, MedicalRecord, AgentSettings, DashboardData,
-  Invoice, InvoiceItem, InventoryItem, InventoryTransaction
+  Invoice, InvoiceItem, InventoryItem, InventoryTransaction, Clinic
 } from './types'
+import { useClinic } from '@/components/providers/clinic-provider'
 
 const fetcher = async (url: string) => {
   const res = await fetch(url)
@@ -15,11 +16,25 @@ const fetcher = async (url: string) => {
   return res.json()
 }
 
+// === Clinics ===
+export function useClinics() {
+  const { data, error, isLoading } = useSWR<Clinic[]>('/api/clinics', fetcher)
+  return { clinics: data ?? [], error, isLoading }
+}
+
 // === Dashboard ===
 export function useDashboard(initialData?: DashboardData) {
-  const { data, error, isLoading } = useSWR<DashboardData>('/api/dashboard', fetcher, {
-    fallbackData: initialData,
+  const { currentClinicId } = useClinic()
+  // Key changes whenever clinic switches, forcing a new fetch
+  const key = currentClinicId ? `/api/dashboard?clinicId=${currentClinicId}` : null
+  
+  const { data, error, isLoading } = useSWR<DashboardData>(key, fetcher, {
+    // Never use SSR fallback — always fetch fresh data for the selected clinic
+    revalidateOnMount: true,
+    revalidateOnFocus: false,
+    dedupingInterval: 0, // No deduplication so switching clinics always re-fetches
   })
+  
   return {
     stats: data?.stats ?? { totalPets: 0, totalOwners: 0, totalAppointments: 0, totalRecords: 0, todayAppointments: 0, totalRevenue: 0, lowStockAlerts: 0 },
     recentAppointments: data?.recentAppointments ?? [],
@@ -31,21 +46,31 @@ export function useDashboard(initialData?: DashboardData) {
 
 // === Pets ===
 export function usePets(initialData?: Pet[]) {
-  const { data, error, isLoading } = useSWR<Pet[]>('/api/pets', fetcher, {
-    fallbackData: initialData,
+  const { currentClinicId } = useClinic()
+  const key = currentClinicId ? `/api/pets?clinicId=${currentClinicId}` : '/api/pets'
+  
+  // Only use server-side fallback if we are on the default clinic
+  const effectiveFallback = !currentClinicId ? initialData : undefined
+
+  const { data, error, isLoading } = useSWR<Pet[]>(key, fetcher, {
+    fallbackData: effectiveFallback,
+    revalidateOnFocus: false,
   })
   return { pets: data ?? [], error, isLoading: !data && isLoading }
 }
 
 export function usePet(id: string, initialData?: Pet) {
-  const { data, error, isLoading } = useSWR<Pet>(id ? `/api/pets/${id}` : null, fetcher, {
+  const { currentClinicId } = useClinic()
+  const key = id ? (currentClinicId ? `/api/pets/${id}?clinicId=${currentClinicId}` : `/api/pets/${id}`) : null
+  const { data, error, isLoading } = useSWR<Pet>(key, fetcher, {
     fallbackData: initialData,
   })
   return { pet: data ?? null, error, isLoading: !data && isLoading }
 }
 
-export async function addPet(body: Record<string, unknown>) {
-  const res = await fetch('/api/pets', {
+export async function addPet(body: Record<string, unknown>, clinicId?: string) {
+  const url = clinicId ? `/api/pets?clinicId=${clinicId}` : '/api/pets'
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -55,13 +80,14 @@ export async function addPet(body: Record<string, unknown>) {
     throw new Error(err.error)
   }
   const data = await res.json()
-  mutate('/api/pets')
-  mutate('/api/dashboard')
+  mutate(key => typeof key === 'string' && key.startsWith('/api/pets'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/dashboard'))
   return data
 }
 
-export async function updatePet(id: string, body: Record<string, unknown>) {
-  const res = await fetch(`/api/pets/${id}`, {
+export async function updatePet(id: string, body: Record<string, unknown>, clinicId?: string) {
+  const url = clinicId ? `/api/pets/${id}?clinicId=${clinicId}` : `/api/pets/${id}`
+  const res = await fetch(url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -71,40 +97,50 @@ export async function updatePet(id: string, body: Record<string, unknown>) {
     throw new Error(err.error)
   }
   const data = await res.json()
-  mutate('/api/pets')
-  mutate(`/api/pets/${id}`)
-  mutate('/api/dashboard')
+  mutate(key => typeof key === 'string' && key.startsWith('/api/pets'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/dashboard'))
   return data
 }
 
-export async function deletePet(id: string) {
-  const res = await fetch(`/api/pets/${id}`, { method: 'DELETE' })
+export async function deletePet(id: string, clinicId?: string) {
+  const url = clinicId ? `/api/pets/${id}?clinicId=${clinicId}` : `/api/pets/${id}`
+  const res = await fetch(url, { method: 'DELETE' })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Failed to delete pet' }))
     throw new Error(err.error)
   }
-  mutate('/api/pets')
-  mutate('/api/dashboard')
+  mutate(key => typeof key === 'string' && key.startsWith('/api/pets'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/dashboard'))
   return true
 }
 
 // === Owners ===
 export function useOwners(initialData?: Owner[]) {
-  const { data, error, isLoading } = useSWR<Owner[]>('/api/owners', fetcher, {
-    fallbackData: initialData,
+  const { currentClinicId } = useClinic()
+  const key = currentClinicId ? `/api/owners?clinicId=${currentClinicId}` : '/api/owners'
+
+  // Only use server-side fallback if we are on the default clinic
+  const effectiveFallback = !currentClinicId ? initialData : undefined
+
+  const { data, error, isLoading } = useSWR<Owner[]>(key, fetcher, {
+    fallbackData: effectiveFallback,
+    revalidateOnFocus: false,
   })
   return { owners: data ?? [], error, isLoading: !data && isLoading }
 }
 
 export function useOwner(id: string, initialData?: Owner) {
-  const { data, error, isLoading } = useSWR<Owner>(id ? `/api/owners/${id}` : null, fetcher, {
+  const { currentClinicId } = useClinic()
+  const key = id ? (currentClinicId ? `/api/owners/${id}?clinicId=${currentClinicId}` : `/api/owners/${id}`) : null
+  const { data, error, isLoading } = useSWR<Owner>(key, fetcher, {
     fallbackData: initialData,
   })
   return { owner: data ?? null, error, isLoading: !data && isLoading }
 }
 
-export async function addOwner(body: Record<string, unknown>) {
-  const res = await fetch('/api/owners', {
+export async function addOwner(body: Record<string, unknown>, clinicId?: string) {
+  const url = clinicId ? `/api/owners?clinicId=${clinicId}` : '/api/owners'
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -114,13 +150,14 @@ export async function addOwner(body: Record<string, unknown>) {
     throw new Error(err.error)
   }
   const data = await res.json()
-  mutate('/api/owners')
-  mutate('/api/dashboard')
+  mutate(key => typeof key === 'string' && key.startsWith('/api/owners'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/dashboard'))
   return data
 }
 
-export async function updateOwner(id: string, body: Record<string, unknown>) {
-  const res = await fetch(`/api/owners/${id}`, {
+export async function updateOwner(id: string, body: Record<string, unknown>, clinicId?: string) {
+  const url = clinicId ? `/api/owners/${id}?clinicId=${clinicId}` : `/api/owners/${id}`
+  const res = await fetch(url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -129,31 +166,34 @@ export async function updateOwner(id: string, body: Record<string, unknown>) {
     const err = await res.json().catch(() => ({ error: 'Failed to update owner' }))
     throw new Error(err.error)
   }
-  mutate('/api/owners')
-  mutate(`/api/owners/${id}`)
-  mutate('/api/dashboard')
+  mutate(key => typeof key === 'string' && key.startsWith('/api/owners'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/dashboard'))
   return true
 }
 
-export async function deleteOwner(id: string) {
-  const res = await fetch(`/api/owners/${id}`, { method: 'DELETE' })
+export async function deleteOwner(id: string, clinicId?: string) {
+  const url = clinicId ? `/api/owners/${id}?clinicId=${clinicId}` : `/api/owners/${id}`
+  const res = await fetch(url, { method: 'DELETE' })
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: 'Failed to delete owner' }))
     throw new Error(err.error)
   }
-  mutate('/api/owners')
-  mutate('/api/dashboard')
+  mutate(key => typeof key === 'string' && key.startsWith('/api/owners'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/dashboard'))
   return true
 }
 
 // === Appointments ===
 export function useAppointments() {
-  const { data, error, isLoading } = useSWR<Appointment[]>('/api/appointments', fetcher)
+  const { currentClinicId } = useClinic()
+  const key = currentClinicId ? `/api/appointments?clinicId=${currentClinicId}` : '/api/appointments'
+  const { data, error, isLoading } = useSWR<Appointment[]>(key, fetcher)
   return { appointments: data ?? [], error, isLoading }
 }
 
-export async function addAppointment(body: Record<string, unknown>) {
-  const res = await fetch('/api/appointments', {
+export async function addAppointment(body: Record<string, unknown>, clinicId?: string) {
+  const url = clinicId ? `/api/appointments?clinicId=${clinicId}` : '/api/appointments'
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -163,13 +203,14 @@ export async function addAppointment(body: Record<string, unknown>) {
     throw new Error(err.error)
   }
   const data = await res.json()
-  mutate('/api/appointments')
-  mutate('/api/dashboard')
+  mutate(key => typeof key === 'string' && key.startsWith('/api/appointments'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/dashboard'))
   return data
 }
 
-export async function updateAppointment(id: string, body: Record<string, unknown>) {
-  const res = await fetch(`/api/appointments/${id}`, {
+export async function updateAppointment(id: string, body: Record<string, unknown>, clinicId?: string) {
+  const url = clinicId ? `/api/appointments/${id}?clinicId=${clinicId}` : `/api/appointments/${id}`
+  const res = await fetch(url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -179,8 +220,8 @@ export async function updateAppointment(id: string, body: Record<string, unknown
     throw new Error(err.error)
   }
   const data = await res.json()
-  mutate('/api/appointments')
-  mutate('/api/dashboard')
+  mutate(key => typeof key === 'string' && key.startsWith('/api/appointments'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/dashboard'))
   return data
 }
 
@@ -202,8 +243,9 @@ export function useMedicalRecords(petId?: string) {
   return { records: data ?? [], error, isLoading }
 }
 
-export async function addMedicalRecord(body: Record<string, unknown>) {
-  const res = await fetch('/api/medical-records', {
+export async function addMedicalRecord(body: Record<string, unknown>, clinicId?: string) {
+  const url = clinicId ? `/api/medical-records?clinicId=${clinicId}` : '/api/medical-records'
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -213,8 +255,8 @@ export async function addMedicalRecord(body: Record<string, unknown>) {
     throw new Error(err.error)
   }
   const data = await res.json()
-  mutate('/api/medical-records')
-  mutate('/api/dashboard')
+  mutate(key => typeof key === 'string' && key.startsWith('/api/medical-records'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/dashboard'))
   return data
 }
 
@@ -222,7 +264,7 @@ export async function addMedicalRecord(body: Record<string, unknown>) {
 const defaultAgentSettings: AgentSettings = {
   model: 'anthropic/claude-opus-4.5',
   temperature: 0.7,
-  systemPrompt: `You are a helpful veterinary assistant for ClinicAnt. You help staff with:
+  systemPrompt: `You are a helpful veterinary assistant for ClinicFlow. You help staff with:
 - Looking up patient and owner information
 - Scheduling appointments
 - Answering common veterinary questions
@@ -247,7 +289,11 @@ export function updateAgentSettings(settings: Partial<AgentSettings>) {
 
 // === Billing ===
 export function useInvoices() {
-  const { data, error, isLoading } = useSWR<Invoice[]>('/api/invoices', fetcher)
+  const { currentClinicId } = useClinic()
+  const key = currentClinicId ? `/api/invoices?clinicId=${currentClinicId}` : '/api/invoices'
+  const { data, error, isLoading } = useSWR<Invoice[]>(key, fetcher, {
+    revalidateOnFocus: false,
+  })
   return { invoices: data ?? [], error, isLoading }
 }
 
@@ -256,8 +302,9 @@ export function useInvoice(id: string) {
   return { invoice: data ?? null, error, isLoading }
 }
 
-export async function addInvoice(body: Record<string, unknown>) {
-  const res = await fetch('/api/invoices', {
+export async function addInvoice(body: Record<string, unknown>, clinicId?: string) {
+  const url = clinicId ? `/api/invoices?clinicId=${clinicId}` : '/api/invoices'
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -267,14 +314,36 @@ export async function addInvoice(body: Record<string, unknown>) {
     throw new Error(err.error)
   }
   const data = await res.json()
-  mutate('/api/invoices')
-  mutate('/api/dashboard')
+  mutate(key => typeof key === 'string' && key.startsWith('/api/invoices'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/dashboard'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/inventory'))
+  return data
+}
+
+export async function updateInvoice(id: string, body: Record<string, unknown>, clinicId?: string) {
+  const url = clinicId ? `/api/invoices?clinicId=${clinicId}` : `/api/invoices`
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, ...body }),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Failed to update invoice' }))
+    throw new Error(err.error)
+  }
+  const data = await res.json()
+  mutate(key => typeof key === 'string' && key.startsWith('/api/invoices'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/dashboard'))
   return data
 }
 
 // === Inventory ===
 export function useInventory() {
-  const { data, error, isLoading } = useSWR<InventoryItem[]>('/api/inventory', fetcher)
+  const { currentClinicId } = useClinic()
+  const key = currentClinicId ? `/api/inventory?clinicId=${currentClinicId}` : '/api/inventory'
+  const { data, error, isLoading } = useSWR<InventoryItem[]>(key, fetcher, {
+    revalidateOnFocus: false,
+  })
   return { inventory: data ?? [], error, isLoading }
 }
 
@@ -283,8 +352,9 @@ export function useInventoryItem(id: string) {
   return { item: data ?? null, error, isLoading }
 }
 
-export async function addInventoryItem(body: Record<string, unknown>) {
-  const res = await fetch('/api/inventory', {
+export async function addInventoryItem(body: Record<string, unknown>, clinicId?: string) {
+  const url = clinicId ? `/api/inventory?clinicId=${clinicId}` : '/api/inventory'
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -294,12 +364,13 @@ export async function addInventoryItem(body: Record<string, unknown>) {
     throw new Error(err.error)
   }
   const data = await res.json()
-  mutate('/api/inventory')
+  mutate(key => typeof key === 'string' && key.startsWith('/api/inventory'))
   return data
 }
 
-export async function addInventoryTransaction(body: Record<string, unknown>) {
-  const res = await fetch('/api/inventory/transactions', {
+export async function addInventoryTransaction(body: Record<string, unknown>, clinicId?: string) {
+  const url = clinicId ? `/api/inventory/transactions?clinicId=${clinicId}` : '/api/inventory/transactions'
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -308,7 +379,8 @@ export async function addInventoryTransaction(body: Record<string, unknown>) {
     const err = await res.json().catch(() => ({ error: 'Failed to add transaction' }))
     throw new Error(err.error)
   }
-  mutate('/api/inventory')
-  if (body.item_id) mutate(`/api/inventory/${body.item_id}`)
+  mutate(key => typeof key === 'string' && key.startsWith('/api/inventory'))
+  if (body.item_id) mutate(key => typeof key === 'string' && key.includes(`/api/inventory/${body.item_id}`))
   return true
 }
+

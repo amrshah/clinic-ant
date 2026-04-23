@@ -47,7 +47,7 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
               <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <PawPrint className="size-5" />
               </div>
-              <SheetTitle className="text-lg font-semibold">ClinicAnt</SheetTitle>
+              <SheetTitle className="text-lg font-semibold">ClinicFlow</SheetTitle>
             </div>
             <Button
               variant="ghost"
@@ -85,3 +85,4 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
     </Sheet>
   )
 }
+

@@ -9,10 +9,9 @@ import { Label } from '@/components/ui/label'
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from '@/components/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Plus, PawPrint } from 'lucide-react'
+import { useClinic } from '@/components/providers/clinic-provider'
 
 interface OwnerFormDialogProps {
   open: boolean
@@ -30,6 +29,7 @@ const speciesOptions = [
 ]
 
 export function OwnerFormDialog({ open, onOpenChange, owner }: OwnerFormDialogProps) {
+  const { currentClinicId } = useClinic()
   const isEditing = !!owner
   const [submitting, setSubmitting] = useState(false)
   const [showQuickAddPet, setShowQuickAddPet] = useState(false)
@@ -70,9 +70,9 @@ export function OwnerFormDialog({ open, onOpenChange, owner }: OwnerFormDialogPr
     setSubmitting(true)
     try {
       if (isEditing && owner) {
-        await updateOwner(owner.id, formData)
+        await updateOwner(owner.id, formData, currentClinicId)
       } else {
-        const newOwner = await addOwner(formData)
+        const newOwner = await addOwner(formData, currentClinicId)
         // If the user also filled in a quick pet, create that too
         if (showQuickAddPet && quickPet.name && quickPet.breed) {
           await addPet({
@@ -83,11 +83,14 @@ export function OwnerFormDialog({ open, onOpenChange, owner }: OwnerFormDialogPr
             weight: parseFloat(quickPet.weight) || 0,
             owner_id: newOwner.id,
             notes: null,
-          })
+          }, currentClinicId)
         }
       }
       onOpenChange(false)
-    } catch { /* error handling */ } finally { setSubmitting(false) }
+    } catch (err: any) { 
+      console.error('Failed to save owner:', err)
+      alert(err.message || 'Failed to save owner. Please check your connection and try again.')
+    } finally { setSubmitting(false) }
   }
 
   return (

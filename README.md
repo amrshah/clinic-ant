@@ -1,119 +1,226 @@
-# ClinicAnt
+# **ClinicFlow**
 
-A comprehensive CRM solution for veterinary clinics.
+**Run Your Clinic. Not Chaos.**
 
-## Features
+ClinicFlow is an operational intelligence system for veterinary clinics — combining patient management, workflows, and AI assistance into a single, cohesive platform.
 
-### Dashboard
-- Overview of key metrics (total pets, owners, today's appointments)
-- Recent appointments list
-- Quick action buttons for common tasks
-
-### Pets Management
-- Full CRUD operations for pet records
-- Filter by species (All, Dogs, Cats, Birds, Rabbits, Other)
-- Detailed pet profiles with medical history
-- Link pets to their owners
-
-### Owners/Clients
-- Contact directory with search functionality
-- View linked pets and appointment history
-- Add notes and communication records
-
-### Appointments
-- Schedule and manage appointments
-- Filter by status (Scheduled, Confirmed, In Progress, Completed, Cancelled)
-- Filter by type (Checkup, Vaccination, Surgery, Dental, Emergency, Grooming, Follow-up)
-- Quick status updates
-
-### Medical Records
-- Comprehensive medical record management
-- Record types: Vaccination, Diagnosis, Prescription, Surgery, Lab Result, Treatment
-- Link records to pets with full history tracking
-
-### AI Assistant
-- Built-in chatbot powered by AI SDK
-- Configurable model selection (Claude Opus 4.5 default, Claude Sonnet 4, GPT-4o, and more)
-- Adjustable temperature and custom system prompts
-- Veterinary clinic context for relevant assistance
-
-## Tech Stack
-
-- **Framework**: Next.js 15 (App Router)
-- **Styling**: Tailwind CSS v4
-- **UI Components**: shadcn/ui
-- **State Management**: SWR
-- **AI**: AI SDK
-- **Icons**: Lucide React
-
-## Project Structure
-
-```
-/app
-  /api/chat          # AI chat API route
-  /appointments      # Appointments page
-  /assistant         # AI assistant page
-  /medical-records   # Medical records page
-  /owners            # Owners management
-    /[id]            # Owner detail page
-  /pets              # Pets management
-    /[id]            # Pet detail page
-  /settings          # Settings page
-  page.tsx           # Dashboard
-
-/components
-  /appointments      # Appointment components
-  /assistant         # AI assistant components
-  /dashboard         # Dashboard components
-  /medical-records   # Medical record components
-  /owners            # Owner components
-  /pets              # Pet components
-  /settings          # Settings components
-  /ui                # shadcn/ui components
-  app-header.tsx     # Header with breadcrumbs
-  app-layout.tsx     # Main layout wrapper
-  app-sidebar.tsx    # Desktop sidebar
-  mobile-nav.tsx     # Mobile navigation
-
-/lib
-  data-store.ts      # In-memory data store with CRUD operations
-  mock-data.ts       # Sample data for development
-  types.ts           # TypeScript type definitions
-  utils.ts           # Utility functions
-```
-
-## Getting Started
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
-4. Open [http://localhost:3000](http://localhost:3000)
-
-## Database Integration
-
-1. Connect your database environment variables
-2. Replace any mock data store functions in `/lib/data-store.ts` with actual database queries
-3. Create the necessary database tables using the types defined in `/lib/types.ts`
-
-## AI Assistant Configuration
-
-The AI assistant can be customized:
-
-1. Navigate to Settings > AI Assistant Settings
-2. Select your preferred model
-3. Adjust the temperature (0 = deterministic, 1 = creative)
-4. Modify the system prompt for specialized behavior
-
-## License
-
-MIT
+It is designed for clinics that want **control, clarity, and scalability** — not fragmented tools.
 
 ---
 
-Powered by [Silver Ant Marketing](https://silverantmarketing.com)
+## **What ClinicFlow Actually Does**
+
+ClinicFlow is not just a CRM.
+
+It is a **clinic operating system** that brings together:
+
+* Patient records  
+* Client relationships  
+* Appointment workflows  
+* Medical history tracking  
+* AI-assisted operations
+
+All in one structured system.
+
+---
+
+## **Core Philosophy**
+
+Most veterinary clinics operate in **controlled chaos**:
+
+* scattered records  
+* manual follow-ups  
+* inconsistent workflows
+
+ClinicFlow replaces that with:
+
+→ **structured workflows**  
+→ **centralized data**  
+→ **intelligent assistance**
+
+---
+
+## **Core Features**
+
+### **Dashboard**
+
+* Real-time operational overview  
+* Daily appointments snapshot  
+* Quick access to critical actions
+
+---
+
+### **Pets Management**
+
+* Full lifecycle tracking of pets  
+* Species-based filtering  
+* Detailed medical history per pet  
+* Linked ownership records
+
+---
+
+### **Client Management**
+
+* Centralized owner directory  
+* Full relationship mapping (owners ↔ pets)  
+* Communication notes & history
+
+---
+
+### **Appointments**
+
+* End-to-end scheduling system  
+* Status tracking (Scheduled → Completed)  
+* Appointment type categorization  
+* Rapid updates for front-desk efficiency
+
+---
+
+### **Medical Records**
+
+* Structured medical history system  
+* Record types:  
+  * Vaccinations  
+  * Diagnoses  
+  * Prescriptions  
+  * Surgeries  
+  * Lab results  
+* Fully linked to patient profiles
+
+---
+
+### **AI Assistant**
+
+* Context-aware clinic assistant  
+* Supports multiple models  
+* Configurable behavior via system prompts  
+* Helps with:  
+  * record summarization  
+  * decision support  
+  * operational queries
+
+---
+
+## **Architecture Overview**
+
+ClinicFlow is built as a **modular, scalable system**:
+
+* **Frontend:** Next.js 15 (App Router)  
+* **UI:** Tailwind CSS \+ shadcn/ui  
+* **State:** SWR  
+* **AI Layer:** AI SDK  
+* **Backend:** Extendable (currently mock → DB ready)
+
+---
+
+## **Deployment Model**
+
+ClinicFlow is currently deployed as:
+
+→ **Per-client isolated VPS deployments**
+
+This ensures:
+
+* data ownership  
+* security  
+* customization flexibility
+
+Future roadmap includes **multi-tenant SaaS deployment**.
+
+---
+
+## **Project Structure**
+
+* `/app` → core routes and pages  
+* `/components` → modular UI system  
+* `/lib` → data layer and utilities
+
+Designed for:
+
+* maintainability  
+* extensibility  
+* rapid iteration
+
+---
+
+## **Setup**
+
+npm install  
+npm run dev
+
+Then open:
+
+[http://localhost:3000](http://localhost:3000/)
+
+---
+
+## **Marketing Site**
+
+The public marketing site for ClinicFlow is located in the `/marketing` directory. 
+It is built with Vanilla HTML/JS and CSS for maximum performance and a premium feel.
+
+To run the marketing site:
+```bash
+cd marketing
+npm install
+npm run dev
+```
+
+---
+
+## **Database Integration**
+
+To productionize:
+
+1. Replace in-memory store with DB queries  
+2. Map types from `/lib/types.ts`  
+3. Configure environment variables
+
+---
+
+## **AI Configuration**
+
+Customizable via Settings:
+
+* Model selection  
+* Temperature control  
+* System prompts
+
+This allows **clinic-specific intelligence tuning**.
+
+---
+
+## **Who This Is For**
+
+ClinicFlow is built for:
+
+* Independent veterinary clinics  
+* Multi-location practices  
+* Clinics moving from manual or fragmented systems
+
+---
+
+## **Roadmap Direction**
+
+* Multi-tenant SaaS architecture  
+* Advanced analytics & reporting  
+* Workflow automation engine  
+* Deeper AI integration
+
+---
+
+## **License**
+
+Private
+
+---
+
+## **Final Note**
+
+ClinicFlow is built with a simple principle:
+
+Clinics should focus on care — not operational friction.
+
+---
+
+ 

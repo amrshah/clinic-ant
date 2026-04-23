@@ -1,7 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { useInventory } from '@/lib/data-store'
+import type { InventoryItem } from '@/lib/types'
+import { InventoryFormDialog } from './inventory-form-dialog'
+import { StockAdjustmentDialog } from './stock-adjustment-dialog'
 import {
     Card,
     CardContent,
@@ -29,6 +32,8 @@ import {
 
 export function InventoryContent() {
     const { inventory, isLoading } = useInventory()
+    const [addItemOpen, setAddItemOpen] = useState(false)
+    const [adjustStockItem, setAdjustStockItem] = useState<InventoryItem | null>(null)
 
     const stats = {
         totalItems: inventory.length,
@@ -57,7 +62,7 @@ export function InventoryContent() {
                     <h1 className="text-2xl font-bold">Inventory Management</h1>
                     <p className="text-muted-foreground text-sm">Track medical supplies, medicines, and clinic stock.</p>
                 </div>
-                <Button className="shrink-0">
+                <Button className="shrink-0" onClick={() => setAddItemOpen(true)}>
                     <Plus className="size-4 mr-2" />
                     Add Item
                 </Button>
@@ -165,8 +170,8 @@ export function InventoryContent() {
                                             )}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="sm">
-                                                Edit
+                                            <Button variant="ghost" size="sm" onClick={() => setAdjustStockItem(item as InventoryItem)}>
+                                                Adjust
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -176,6 +181,13 @@ export function InventoryContent() {
                     </Table>
                 </CardContent>
             </Card>
+
+            <InventoryFormDialog open={addItemOpen} onOpenChange={setAddItemOpen} />
+            <StockAdjustmentDialog 
+                open={!!adjustStockItem} 
+                onOpenChange={(open) => !open && setAdjustStockItem(null)} 
+                item={adjustStockItem} 
+            />
         </div>
     )
 }

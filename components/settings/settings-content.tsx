@@ -37,12 +37,12 @@ interface ClinicInfo {
 }
 
 const defaultClinicInfo: ClinicInfo = {
-  clinicName: 'ClinicAnt Veterinary Practice',
+  clinicName: 'ClinicFlow Veterinary Practice',
   tagline: 'Caring for your pets like family',
-  email: 'info@clinicant.com',
+  email: 'info@ClinicFlow.com',
   phone: '(555) 100-2000',
   fax: '(555) 100-2001',
-  website: 'https://www.clinicant.com',
+  website: 'https://www.ClinicFlow.com',
   address: '1234 Paw Lane',
   city: 'Toronto',
   state: 'ON',
@@ -364,8 +364,9 @@ export function SettingsContent() {
             Silver Ant Marketing
           </a>
         </p>
-        <p>&copy; {new Date().getFullYear()} ClinicAnt. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} ClinicFlow. All rights reserved.</p>
       </footer>
     </div>
   )
 }
+

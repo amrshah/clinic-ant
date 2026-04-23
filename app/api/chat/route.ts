@@ -26,10 +26,11 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: model || 'anthropic/claude-opus-4.5',
-    system: systemPrompt || 'You are a helpful veterinary assistant for ClinicAnt.',
+    system: systemPrompt || 'You are a helpful veterinary assistant for ClinicFlow.',
     messages: await convertToModelMessages(messages),
     temperature: temperature ?? 0.7,
   })
 
   return result.toUIMessageStreamResponse()
 }
+

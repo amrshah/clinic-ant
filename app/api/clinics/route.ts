@@ -1,17 +1,21 @@
+import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
-import { getAuthContext, isAuthContext } from '@/lib/api-helpers'
 
 export async function GET() {
-  const ctx = await getAuthContext()
-  if (!isAuthContext(ctx)) return ctx
+  const supabase = await createClient()
 
-  const { data, error } = await ctx.supabase
+  // In a real app, we'd filter by the user's organization
+  // For the demo, we fetch all clinics in our demo organization
+  const { data, error } = await supabase
     .from('clinics')
     .select('*')
-    .eq('org_id', ctx.profile.org_id)
-    .order('name', { ascending: true })
+    .eq('organization_id', 'a0000000-0000-0000-0000-000000000001')
+    .eq('is_active', true)
+    .order('name')
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
 
   return NextResponse.json(data)
 }

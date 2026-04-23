@@ -11,7 +11,7 @@
 1. Go to Cloudflare Dashboard
 2. Navigate to Zero Trust → Networks → Tunnels
 3. Click "Create a tunnel" and select "Cloudflared" as the connector
-4. Name it "ClinicAnt"
+4. Name it "ClinicFlow"
 5. Copy the tunnel token provided
 
 ### 2. Add Tunnel Token to Environment
@@ -24,10 +24,10 @@ CLOUDFLARED_TOKEN=<your-tunnel-token>
 ### 3. Configure DNS in Cloudflare
 
 1. In Cloudflare Zero Trust, go to Networks → Tunnels
-2. Click on "ClinicAnt" tunnel
+2. Click on "ClinicFlow" tunnel
 3. Go to "Public Hostnames" tab
-4. Add hostname: `clinicant.samwebdevs.dpdns.org`
-5. Service: `http://clinic-ant:3000` (or the custom port you're using)
+4. Add hostname: `ClinicFlow.samwebdevs.dpdns.org`
+5. Service: `http://clinic-flow:3000` (or the custom port you're using)
 
 ### 4. Deploy
 
@@ -35,7 +35,7 @@ CLOUDFLARED_TOKEN=<your-tunnel-token>
 docker-compose up -d
 ```
 
-The tunnel will automatically connect and route traffic from `clinicant.samwebdevs.dpdns.org` to your ClinicAnt application.
+The tunnel will automatically connect and route traffic from `ClinicFlow.samwebdevs.dpdns.org` to your ClinicFlow application.
 
 ## Configuration Files
 
@@ -45,7 +45,8 @@ The tunnel will automatically connect and route traffic from `clinicant.samwebde
 ## Troubleshooting
 
 If the tunnel isn't connecting:
-1. Check logs: `docker logs clinic-ant-tunnel`
+1. Check logs: `docker logs clinic-flow-tunnel`
 2. Verify tunnel token is correct
 3. Ensure tunnel exists in Cloudflare dashboard
-4. Check that clinicant.samwebdevs.dpdns.org is properly configured in Cloudflare
+4. Check that ClinicFlow.samwebdevs.dpdns.org is properly configured in Cloudflare
+

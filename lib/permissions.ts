@@ -1,6 +1,6 @@
 export type UserRole = 'administrator' | 'veterinarian' | 'nurse_assistant' | 'reception' | 'technician' | 'client'
 
-export type Module = 'dashboard' | 'pets' | 'owners' | 'appointments' | 'medical_records' | 'settings' | 'assistant' | 'users' | 'audit_logs' | 'privacy' | 'billing' | 'inventory'
+export type Module = 'dashboard' | 'pets' | 'owners' | 'appointments' | 'medical_records' | 'settings' | 'assistant' | 'users' | 'audit_logs' | 'privacy' | 'billing' | 'inventory' | 'communications'
 
 export type Action = 'view' | 'create' | 'edit' | 'delete' | 'export'
 
@@ -24,6 +24,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermission[]> = {
     { module: 'users', actions: ['view', 'create', 'edit', 'delete'] },
     { module: 'audit_logs', actions: ['view', 'export'] },
     { module: 'privacy', actions: ['view', 'edit', 'delete'] },
+    { module: 'communications', actions: ['view', 'export'] },
   ],
   veterinarian: [
     { module: 'dashboard', actions: ['view'] },
@@ -38,6 +39,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermission[]> = {
     { module: 'users', actions: ['view'] },
     { module: 'audit_logs', actions: [] },
     { module: 'privacy', actions: [] },
+    { module: 'communications', actions: ['view'] },
   ],
   nurse_assistant: [
     { module: 'dashboard', actions: ['view'] },
@@ -52,6 +54,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermission[]> = {
     { module: 'users', actions: ['view'] },
     { module: 'audit_logs', actions: [] },
     { module: 'privacy', actions: [] },
+    { module: 'communications', actions: [] },
   ],
   reception: [
     { module: 'dashboard', actions: ['view'] },
@@ -66,6 +69,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermission[]> = {
     { module: 'users', actions: ['view'] },
     { module: 'audit_logs', actions: [] },
     { module: 'privacy', actions: [] },
+    { module: 'communications', actions: ['view'] },
   ],
   technician: [
     { module: 'dashboard', actions: ['view'] },
@@ -80,6 +84,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermission[]> = {
     { module: 'users', actions: ['view'] },
     { module: 'audit_logs', actions: [] },
     { module: 'privacy', actions: [] },
+    { module: 'communications', actions: [] },
   ],
   client: [
     { module: 'dashboard', actions: [] },
@@ -94,6 +99,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, RolePermission[]> = {
     { module: 'users', actions: [] },
     { module: 'audit_logs', actions: [] },
     { module: 'privacy', actions: [] },
+    { module: 'communications', actions: [] },
   ],
 }
 

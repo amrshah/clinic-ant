@@ -1,4 +1,4 @@
-# Implementation Plan: ClinicAnt Phase 1 Enhancements
+# Implementation Plan: ClinicFlow Phase 1 Enhancements
 
 This plan covers the implementation of **Billing & Invoicing** and **Basic Inventory** modules as outlined in the roadmap.
 
@@ -40,3 +40,4 @@ Create new API routes in `app/api/`:
 2. **Step B**: Implement API logic in `lib/api/`.
 3. **Step C**: Build UI components using existing design system (shadcn/ui + Tailwind v4).
 4. **Step D**: Integrate modules into Sidebar navigation.
+

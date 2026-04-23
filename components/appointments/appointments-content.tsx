@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useAppointments, updateAppointment, deleteAppointment } from '@/lib/data-store'
+import { useAppointments, updateAppointment, deleteAppointment, addInvoice } from '@/lib/data-store'
 import type { Appointment } from '@/lib/types'
 import { useAuth } from '@/components/providers/auth-provider'
 import { hasPermission } from '@/lib/permissions'
@@ -11,9 +11,9 @@ import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
-import { Plus, MoreHorizontal, Edit, Trash2, Calendar, Check, X, Clock, Play } from 'lucide-react'
+import { Plus, MoreHorizontal, Edit, Trash2, Calendar, Check, X, Clock, Play, LogIn, Stethoscope, Receipt } from 'lucide-react'
 import Link from 'next/link'
-import { AppointmentFormDialog } from './appointment-form-dialog'
+import { AppointmentFormDialog } from '@/components/appointments/appointment-form-dialog'
 
 type StatusFilter = Appointment['status'] | 'all'
 type TypeFilter = Appointment['type'] | 'all'
@@ -38,12 +38,25 @@ export function AppointmentsContent() {
       const matchesType = typeFilter === 'all' || apt.type === typeFilter
       return matchesStatus && matchesType
     })
-    .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+    .sort((a, b) => {
+      const dateA = a.date || ''
+      const dateB = b.date || ''
+      const dateCompare = dateA.localeCompare(dateB)
+      if (dateCompare !== 0) return dateCompare
+      
+      const timeA = a.time || ''
+      const timeB = b.time || ''
+      return timeA.localeCompare(timeB)
+    })
 
   const statusOptions: { value: StatusFilter; label: string }[] = [
-    { value: 'all', label: 'All Status' }, { value: 'scheduled', label: 'Scheduled' },
-    { value: 'confirmed', label: 'Confirmed' }, { value: 'in-progress', label: 'In Progress' },
-    { value: 'completed', label: 'Completed' }, { value: 'cancelled', label: 'Cancelled' },
+    { value: 'all', label: 'All Status' }, 
+    { value: 'scheduled', label: 'Scheduled' },
+    { value: 'checked-in', label: 'Checked In' }, 
+    { value: 'in-exam', label: 'In Exam' }, 
+    { value: 'billing', label: 'Billing' },
+    { value: 'completed', label: 'Completed' }, 
+    { value: 'cancelled', label: 'Cancelled' },
   ]
   const typeOptions: { value: TypeFilter; label: string }[] = [
     { value: 'all', label: 'All Types' }, { value: 'checkup', label: 'Checkup' },
@@ -54,14 +67,52 @@ export function AppointmentsContent() {
 
   const getStatusBadge = (status: Appointment['status']) => {
     const v: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      scheduled: 'secondary', confirmed: 'default', 'in-progress': 'outline', completed: 'secondary', cancelled: 'destructive',
+      scheduled: 'secondary',
+      'checked-in': 'default',
+      'in-exam': 'outline',
+      billing: 'default',
+      completed: 'secondary',
+      cancelled: 'destructive',
     }
-    return <Badge variant={v[status] ?? 'outline'} className="capitalize">{status.replace('-', ' ')}</Badge>
+    const colors: Record<string, string> = {
+      'checked-in': 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300',
+      'in-exam': 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-300',
+      'billing': 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300',
+    }
+    return (
+      <Badge 
+        variant={v[status] ?? 'outline'} 
+        className={`capitalize ${colors[status] ?? ''}`}
+      >
+        {status.replace('-', ' ')}
+      </Badge>
+    )
   }
 
   const handleEdit = (apt: Appointment) => { setEditingAppointment(apt); setDialogOpen(true) }
-  const handleStatusChange = async (id: string, status: Appointment['status']) => {
-    try { await updateAppointment(id, { status }) } catch { /* toast */ }
+  const handleStatusChange = async (appointment: Appointment, status: Appointment['status']) => {
+    try { 
+      await updateAppointment(appointment.id, { status }) 
+      
+      // Auto-trigger billing if moving to 'billing' status
+      if (status === 'billing') {
+        try {
+          await addInvoice({
+            owner_id: appointment.owner_id,
+            appointment_id: appointment.id,
+            status: 'draft',
+            total_amount: 0,
+            tax_amount: 0,
+            currency: 'USD',
+            notes: `Auto-generated draft for appointment on ${appointment.date}`
+          })
+        } catch (err) {
+          console.error('Failed to auto-create invoice:', err)
+        }
+      }
+    } catch (err) { 
+      console.error('Failed to update status:', err)
+    }
   }
   const confirmDelete = async () => {
     if (deletingAppointment) {
@@ -136,8 +187,10 @@ export function AppointmentsContent() {
                     <TableRow key={apt.id}>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{new Date(apt.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' })}</p>
-                          <p className="text-sm text-muted-foreground">{apt.time}</p>
+                          <p className="font-medium">
+                            {apt.date ? new Date(apt.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }) : 'No Date'}
+                          </p>
+                          <p className="text-sm text-muted-foreground">{apt.time || 'No Time'}</p>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -150,22 +203,48 @@ export function AppointmentsContent() {
                       <TableCell className="hidden md:table-cell">{apt.vet ? `Dr. ${apt.vet.first_name} ${apt.vet.last_name}` : 'N/A'}</TableCell>
                       <TableCell>{getStatusBadge(apt.status)}</TableCell>
                       <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="size-8"><MoreHorizontal className="size-4" /><span className="sr-only">Actions</span></Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {canEdit && <DropdownMenuItem onClick={() => handleEdit(apt)}><Edit className="size-4 mr-2" />Edit</DropdownMenuItem>}
-                            {canEdit && (<>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => handleStatusChange(apt.id, 'confirmed')} disabled={apt.status === 'confirmed'}><Check className="size-4 mr-2" />Confirm</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleStatusChange(apt.id, 'in-progress')} disabled={apt.status === 'in-progress'}><Play className="size-4 mr-2" />Start</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleStatusChange(apt.id, 'completed')} disabled={apt.status === 'completed'}><Clock className="size-4 mr-2" />Complete</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleStatusChange(apt.id, 'cancelled')} disabled={apt.status === 'cancelled'}><X className="size-4 mr-2" />Cancel</DropdownMenuItem>
-                            </>)}
-                            {canDelete && (<><DropdownMenuSeparator /><DropdownMenuItem onClick={() => setDeletingAppointment(apt)} className="text-destructive"><Trash2 className="size-4 mr-2" />Delete</DropdownMenuItem></>)}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
+                        <div className="flex items-center gap-2">
+                          {/* Quick Actions based on current status */}
+                          {apt.status === 'scheduled' && (
+                            <Button size="sm" variant="outline" className="h-8 px-2 text-xs" onClick={() => handleStatusChange(apt, 'checked-in')}>
+                              <LogIn className="size-3 mr-1" /> Check-in
+                            </Button>
+                          )}
+                          {apt.status === 'checked-in' && (
+                            <Button size="sm" variant="outline" className="h-8 px-2 text-xs border-blue-200 bg-blue-50 text-blue-700 hover:bg-blue-100" onClick={() => handleStatusChange(apt, 'in-exam')}>
+                              <Stethoscope className="size-3 mr-1" /> Exam
+                            </Button>
+                          )}
+                          {apt.status === 'in-exam' && (
+                            <Button size="sm" variant="outline" className="h-8 px-2 text-xs border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100" onClick={() => handleStatusChange(apt, 'billing')}>
+                              <Receipt className="size-3 mr-1" /> Billing
+                            </Button>
+                          )}
+                          {apt.status === 'billing' && (
+                            <Button size="sm" variant="outline" className="h-8 px-2 text-xs border-green-200 bg-green-50 text-green-700 hover:bg-green-100" onClick={() => handleStatusChange(apt, 'completed')}>
+                              <Check className="size-3 mr-1" /> Complete
+                            </Button>
+                          )}
+                          
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="size-8"><MoreHorizontal className="size-4" /><span className="sr-only">Actions</span></Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              {canEdit && <DropdownMenuItem onClick={() => handleEdit(apt)}><Edit className="size-4 mr-2" />Edit</DropdownMenuItem>}
+                              {canEdit && (<>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem onClick={() => handleStatusChange(apt, 'scheduled')} disabled={apt.status === 'scheduled'}><Clock className="size-4 mr-2" />Re-schedule</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(apt, 'checked-in')} disabled={apt.status === 'checked-in'}><LogIn className="size-4 mr-2" />Check-in</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(apt, 'in-exam')} disabled={apt.status === 'in-exam'}><Stethoscope className="size-4 mr-2" />In Exam</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(apt, 'billing')} disabled={apt.status === 'billing'}><Receipt className="size-4 mr-2" />Move to Billing</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(apt, 'completed')} disabled={apt.status === 'completed'}><Check className="size-4 mr-2" />Complete</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleStatusChange(apt, 'cancelled')} disabled={apt.status === 'cancelled'}><X className="size-4 mr-2" />Cancel</DropdownMenuItem>
+                              </>)}
+                              {canDelete && (<><DropdownMenuSeparator /><DropdownMenuItem onClick={() => setDeletingAppointment(apt)} className="text-destructive"><Trash2 className="size-4 mr-2" />Delete</DropdownMenuItem></>)}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
