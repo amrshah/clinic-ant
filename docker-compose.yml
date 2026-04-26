@@ -9,10 +9,16 @@ services:
         - NEXT_PUBLIC_APP_VERSION=${NEXT_PUBLIC_APP_VERSION}
     ports:
       - "3500:3000"
-    env_file:
-      - .env
+    # env_file removed to avoid dependency on committed secrets
     environment:
       - NODE_ENV=production
+      - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - CLOUDFLARED_TOKEN=${CLOUDFLARED_TOKEN}
+      - SENTRY_DSN=${SENTRY_DSN}
+      - NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN}
+      - NEXT_PUBLIC_APP_VERSION=${NEXT_PUBLIC_APP_VERSION}
     restart: always
     networks:
       - clinic-network
@@ -41,8 +47,6 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: clinic-flow-tunnel
     command: tunnel run
-    env_file:
-      - .env
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
     restart: always
