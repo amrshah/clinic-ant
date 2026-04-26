@@ -41,12 +41,12 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border bg-card p-1 shadow-sm">
+          <div className="mx-auto mb-6 flex h-20 w-full max-w-[220px] items-center justify-center overflow-hidden rounded-xl border bg-card p-2 shadow-sm">
             <Image
               src="/clinicflow-logo.webp"
               alt="Clinic Flow Logo"
-              width={56}
-              height={56}
+              width={220}
+              height={80}
               className="size-full object-contain"
               priority
             />
