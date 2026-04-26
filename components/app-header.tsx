@@ -55,7 +55,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
       <Breadcrumb className="flex-1">
         <BreadcrumbList>
           <BreadcrumbLink href="/" className="font-semibold text-sidebar-primary md:text-primary">
-            ClinicFlow
+            Clinic Flow
           </BreadcrumbLink>
           
           {breadcrumbs.map((crumb, index) => (

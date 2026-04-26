@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: model || 'anthropic/claude-opus-4.5',
-    system: systemPrompt || 'You are a helpful veterinary assistant for ClinicFlow.',
+    system: systemPrompt || 'You are a helpful veterinary assistant for Clinic Flow.',
     messages: await convertToModelMessages(messages),
     temperature: temperature ?? 0.7,
   })

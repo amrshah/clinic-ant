@@ -264,7 +264,7 @@ export async function addMedicalRecord(body: Record<string, unknown>, clinicId?:
 const defaultAgentSettings: AgentSettings = {
   model: 'anthropic/claude-opus-4.5',
   temperature: 0.7,
-  systemPrompt: `You are a helpful veterinary assistant for ClinicFlow. You help staff with:
+  systemPrompt: `You are a helpful veterinary assistant for Clinic Flow. You help staff with:
 - Looking up patient and owner information
 - Scheduling appointments
 - Answering common veterinary questions

@@ -1,8 +1,10 @@
 ingress:
-  - hostname: ClinicFlow.samwebdevs.dpdns.org
-    service: http://clinic-flow:3000
+  - hostname: clinicflow.vet
+    service: http://gateway:80
+  - hostname: demo.clinicflow.vet
+    service: http://gateway:80
   - service: http_status:404
 
-# When using token-based auth, the tunnel name isn't needed in the config
-# as the token identifies the tunnel
-
+# Note: Since we are using a Managed Tunnel (Remote Configuration), 
+# these rules should also be configured in the Cloudflare Dashboard 
+# under Networks -> Tunnels -> [ClinicFlow] -> Public Hostnames.

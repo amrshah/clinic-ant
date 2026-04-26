@@ -5,20 +5,35 @@ services:
       args:
         - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
         - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-        # Client-side bundle — must be baked in at build time by Next.js
         - NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN}
         - NEXT_PUBLIC_APP_VERSION=${NEXT_PUBLIC_APP_VERSION}
     ports:
       - "3000:3000"
     env_file:
-      - .env.local
+      - .env
     environment:
       - NODE_ENV=production
-      # Runtime vars for server-side and instrumentation.ts
-      - SENTRY_DSN=${SENTRY_DSN}
-      - NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN}
-      - NEXT_PUBLIC_APP_VERSION=${NEXT_PUBLIC_APP_VERSION}
     restart: always
+    networks:
+      - clinic-network
+
+  marketing-site:
+    build:
+      context: ./marketing
+    ports:
+      - "8080:80"
+    restart: always
+    networks:
+      - clinic-network
+
+  gateway:
+    image: nginx:alpine
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: always
+    depends_on:
+      - clinic-flow
+      - marketing-site
     networks:
       - clinic-network
 
@@ -26,17 +41,16 @@ services:
     image: cloudflare/cloudflared:latest
     container_name: clinic-flow-tunnel
     command: tunnel run
-    volumes:
-      - ./config/tunnel-config.yml:/etc/cloudflared/config.yml
+    env_file:
+      - .env
     environment:
-      - TUNNEL_TOKEN=eyJhIjoiZDY5OWVhY2E4ZTA2NmUxYmZhZWU5Njc5ZWVjYjhmZTEiLCJ0IjoiNzA3MTg0MGYtNjIyNi00ZTZmLThkNWMtMTdiZTNkMTA3MmQyIiwicyI6Ik1XTm1OVEUwTUdRdE1UYzVZeTAwTXpVNExUbGtPV1V0WmpkaVpqTXdNR1E0WWpGaSJ9
-    restart: on-failure
+      - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
+    restart: always
     depends_on:
-      - clinic-flow
+      - gateway
     networks:
       - clinic-network
 
 networks:
   clinic-network:
     driver: bridge
-

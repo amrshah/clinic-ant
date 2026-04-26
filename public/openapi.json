@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "VetCare API",
-    "description": "Production API for the VetCare Clinic Management Platform",
+    "title": "Clinic Flow API",
+    "description": "Production API for the Clinic Flow Clinic Management Platform",
     "version": "1.0.0"
   },
   "servers": [

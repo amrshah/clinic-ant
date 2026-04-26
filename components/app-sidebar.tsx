@@ -75,25 +75,20 @@ export function AppSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="border-b border-sidebar-border px-4 py-4">
+      <SidebarHeader className="border-b border-sidebar-border px-4 py-4 bg-white text-slate-900">
         <Link
           href="/"
-          className="flex items-center gap-3"
+          className="flex items-center justify-center py-2"
           onClick={handleNavClick}
         >
-          <div className="flex size-9 items-center justify-center overflow-hidden rounded-lg">
+          <div className="relative w-full h-12">
             <Image
-              src="/vetcare-logo-transparent.png"
-              alt="VetCare Logo"
-              width={36}
-              height={36}
-              className="size-full object-contain"
+              src="/clinicflow-logo.webp"
+              alt="Clinic Flow Logo"
+              fill
+              className="object-contain"
               priority
             />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-lg font-semibold leading-none">ClinicFlow</span>
-            <span className="text-xs text-sidebar-foreground/70">Clinic Management</span>
           </div>
         </Link>
         <div className="mt-4">
@@ -149,4 +144,3 @@ export function AppSidebar() {
     </Sidebar>
   )
 }
-

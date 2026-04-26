@@ -10,13 +10,22 @@ import {
 } from '@/components/ui/select'
 import { useClinics } from '@/lib/data-store'
 import { useClinic } from '@/components/providers/clinic-provider'
-import { Store } from 'lucide-react'
+import { Store, ChevronDown } from 'lucide-react'
 import { useAuth } from '@/components/providers/auth-provider'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
+import { cn } from '@/lib/utils'
 
 export function ClinicSwitcher() {
   const { clinics, isLoading: clinicsLoading } = useClinics()
   const { currentClinicId, setCurrentClinicId, isLoading: contextLoading } = useClinic()
   const { profile } = useAuth()
+  const [isOpen, setIsOpen] = React.useState(false)
+
+  const currentClinic = clinics.find((c) => c.id === currentClinicId)
 
   // Auto-select based on priority: localStorage -> assigned branch -> consolidated
   React.useEffect(() => {
@@ -43,29 +52,57 @@ export function ClinicSwitcher() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 px-1 py-2">
-      <div className="flex items-center gap-2 px-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
-        <Store className="size-3" />
-        <span>Select Clinic Branch</span>
-      </div>
-      <ShadcnSelect
-        value={currentClinicId || 'all'}
-        onValueChange={(value) => setCurrentClinicId(value)}
-      >
-        <ShadcnSelectTrigger className="h-9 w-full bg-sidebar-accent/50 text-xs hover:bg-sidebar-accent border-primary/20">
-          <ShadcnSelectValue placeholder="ShadcnSelect Branch" />
-        </ShadcnSelectTrigger>
-        <ShadcnSelectContent>
-          <ShadcnSelectItem value="all" className="text-xs font-semibold text-primary border-b mb-1 uppercase tracking-tighter">
-            ✨ Consolidated View
-          </ShadcnSelectItem>
-          {clinics.map((clinic) => (
-            <ShadcnSelectItem key={clinic.id} value={clinic.id} className="text-xs">
-              {clinic.name}
-            </ShadcnSelectItem>
-          ))}
-        </ShadcnSelectContent>
-      </ShadcnSelect>
-    </div>
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="w-full"
+    >
+      <CollapsibleTrigger asChild>
+        <button
+          className={cn(
+            "flex w-full items-center justify-between rounded-md px-2 py-1.5 transition-colors hover:bg-muted/50",
+            isOpen ? "bg-muted/30" : ""
+          )}
+        >
+          <div className="flex items-center gap-2 overflow-hidden">
+            <Store className="size-3 shrink-0 text-primary" />
+            <span className="truncate text-[10px] font-bold uppercase tracking-wider text-slate-700">
+              {currentClinic?.name || '✨ Consolidated View'}
+            </span>
+          </div>
+          <ChevronDown
+            className={cn(
+              "size-3 shrink-0 text-muted-foreground transition-transform duration-200",
+              isOpen ? "rotate-180" : ""
+            )}
+          />
+        </button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="pt-2">
+        <div className="flex flex-col gap-1.5 px-1">
+          <ShadcnSelect
+            value={currentClinicId || 'all'}
+            onValueChange={(value) => {
+              setCurrentClinicId(value)
+              setIsOpen(false)
+            }}
+          >
+            <ShadcnSelectTrigger className="h-9 w-full bg-sidebar-accent/30 text-xs hover:bg-sidebar-accent border-primary/10">
+              <ShadcnSelectValue placeholder="Select Branch" />
+            </ShadcnSelectTrigger>
+            <ShadcnSelectContent>
+              <ShadcnSelectItem value="all" className="text-xs font-semibold text-primary border-b mb-1 uppercase tracking-tighter">
+                ✨ Consolidated View
+              </ShadcnSelectItem>
+              {clinics.map((clinic) => (
+                <ShadcnSelectItem key={clinic.id} value={clinic.id} className="text-xs">
+                  {clinic.name}
+                </ShadcnSelectItem>
+              ))}
+            </ShadcnSelectContent>
+          </ShadcnSelect>
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   )
 }

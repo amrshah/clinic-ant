@@ -18,7 +18,7 @@ const CLINIC_OTTAWA = 'c0000000-0000-0000-0000-000000000002'
 
 const users = [
   {
-    email: 'admin@ClinicFlow.demo',
+    email: 'admin@clinicflow.demo',
     password: 'Admin123!',
     first_name: 'Sarah',
     last_name: 'Chen',
@@ -26,7 +26,7 @@ const users = [
     clinic_id: CLINIC_TORONTO,
   },
   {
-    email: 'vet@ClinicFlow.demo',
+    email: 'vet@clinicflow.demo',
     password: 'Vet12345!',
     first_name: 'Dr. James',
     last_name: 'Wilson',
@@ -34,7 +34,7 @@ const users = [
     clinic_id: CLINIC_TORONTO,
   },
   {
-    email: 'nurse@ClinicFlow.demo',
+    email: 'nurse@clinicflow.demo',
     password: 'Nurse123!',
     first_name: 'Emily',
     last_name: 'Martinez',
@@ -42,7 +42,7 @@ const users = [
     clinic_id: CLINIC_TORONTO,
   },
   {
-    email: 'reception@ClinicFlow.demo',
+    email: 'reception@clinicflow.demo',
     password: 'Recep123!',
     first_name: 'David',
     last_name: 'Thompson',
@@ -50,7 +50,7 @@ const users = [
     clinic_id: CLINIC_TORONTO,
   },
   {
-    email: 'tech@ClinicFlow.demo',
+    email: 'tech@clinicflow.demo',
     password: 'Tech1234!',
     first_name: 'Lisa',
     last_name: 'Park',

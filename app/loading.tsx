@@ -6,7 +6,7 @@ export default function Loading() {
             <div className="flex flex-col items-center gap-2">
                 <div className="size-16 animate-pulse overflow-hidden rounded-xl border bg-card p-2 shadow-sm">
                     <Image
-                        src="/vetcare-logo-transparent.png"
+                        src="/clinicflow-logo.webp"
                         alt="Loading..."
                         width={64}
                         height={64}

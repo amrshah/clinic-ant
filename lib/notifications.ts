@@ -74,18 +74,18 @@ export async function sendAppointmentConfirmation(
 
   // Send SMS if phone is available
   if (owner.phone) {
-    const msg = `VetCare: Your appointment for ${pet?.name || 'your pet'} is confirmed for ${dateStr} at ${timeStr}.`
+    const msg = `Clinic Flow: Your appointment for ${pet?.name || 'your pet'} is confirmed for ${dateStr} at ${timeStr}.`
     await sendSMS(owner.phone, msg)
     await logNotification(ctx, owner.phone, 'sms', 'send_confirmation', msg, appointment.id)
   }
 
   // Send Email if email is available
   if (owner.email) {
-    const subject = `Appointment Confirmation: ${pet?.name || 'Your Pet'} at VetCare`
+    const subject = `Appointment Confirmation: ${pet?.name || 'Your Pet'} at Clinic Flow`
     const html = `<p>Hello ${owner.display_name || 'Pet Owner'},</p>
                   <p>Your appointment for <strong>${pet?.name || 'your pet'}</strong> is confirmed.</p>
                   <p><strong>Date:</strong> ${dateStr}<br/><strong>Time:</strong> ${timeStr}</p>
-                  <p>Thank you for choosing VetCare!</p>`
+                  <p>Thank you for choosing Clinic Flow!</p>`
     await sendEmail(owner.email, subject, html)
     await logNotification(ctx, owner.email, 'email', 'send_confirmation', html, appointment.id)
   }
@@ -105,7 +105,7 @@ export async function sendAppointmentReminder(
 
   // Send SMS if phone is available
   if (owner.phone) {
-    const msg = `VetCare Reminder: You have an upcoming appointment for ${pet?.name || 'your pet'} tomorrow (${dateStr}) at ${timeStr}. Reply C to cancel.`
+    const msg = `Clinic Flow Reminder: You have an upcoming appointment for ${pet?.name || 'your pet'} tomorrow (${dateStr}) at ${timeStr}. Reply C to cancel.`
     await sendSMS(owner.phone, msg)
     await logNotification(ctx, owner.phone, 'sms', 'send_reminder', msg, appointment.id)
   }

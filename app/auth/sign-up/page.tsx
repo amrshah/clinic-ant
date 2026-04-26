@@ -54,8 +54,8 @@ export default function SignUpPage() {
         <CardHeader className="text-center">
           <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border bg-card p-1 shadow-sm">
             <Image
-              src="/vetcare-logo-transparent.png"
-              alt="VetCare Logo"
+              src="/clinicflow-logo.webp"
+              alt="Clinic Flow Logo"
               width={56}
               height={56}
               className="size-full object-contain"
@@ -63,7 +63,7 @@ export default function SignUpPage() {
             />
           </div>
           <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
-          <CardDescription>Join your clinic on ClinicFlow</CardDescription>
+          <CardDescription>Join your clinic on Clinic Flow</CardDescription>
         </CardHeader>
         <form onSubmit={handleSignUp}>
           <CardContent className="space-y-4">

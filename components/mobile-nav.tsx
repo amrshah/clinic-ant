@@ -19,6 +19,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet'
+import Image from 'next/image'
 
 const navItems = [
   { title: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -43,11 +44,14 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
       <SheetContent side="right" className="w-full p-0 sm:max-w-full">
         <SheetHeader className="border-b px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <PawPrint className="size-5" />
-              </div>
-              <SheetTitle className="text-lg font-semibold">ClinicFlow</SheetTitle>
+            <div className="relative h-8 w-32">
+              <Image
+                src="/clinicflow-logo.webp"
+                alt="Clinic Flow Logo"
+                fill
+                className="object-contain"
+                priority
+              />
             </div>
             <Button
               variant="ghost"

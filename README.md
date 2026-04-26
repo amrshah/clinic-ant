@@ -1,16 +1,16 @@
-# **ClinicFlow**
+# **Clinic Flow**
 
 **Run Your Clinic. Not Chaos.**
 
-ClinicFlow is an operational intelligence system for veterinary clinics — combining patient management, workflows, and AI assistance into a single, cohesive platform.
+Clinic Flow is an operational intelligence system for veterinary clinics — combining patient management, workflows, and AI assistance into a single, cohesive platform.
 
 It is designed for clinics that want **control, clarity, and scalability** — not fragmented tools.
 
 ---
 
-## **What ClinicFlow Actually Does**
+## **What Clinic Flow Actually Does**
 
-ClinicFlow is not just a CRM.
+Clinic Flow is not just a CRM.
 
 It is a **clinic operating system** that brings together:
 
@@ -32,7 +32,7 @@ Most veterinary clinics operate in **controlled chaos**:
 * manual follow-ups  
 * inconsistent workflows
 
-ClinicFlow replaces that with:
+Clinic Flow replaces that with:
 
 → **structured workflows**  
 → **centralized data**  
@@ -103,7 +103,7 @@ ClinicFlow replaces that with:
 
 ## **Architecture Overview**
 
-ClinicFlow is built as a **modular, scalable system**:
+Clinic Flow is built as a **modular, scalable system**:
 
 * **Frontend:** Next.js 15 (App Router)  
 * **UI:** Tailwind CSS \+ shadcn/ui  
@@ -115,7 +115,7 @@ ClinicFlow is built as a **modular, scalable system**:
 
 ## **Deployment Model**
 
-ClinicFlow is currently deployed as:
+Clinic Flow is currently deployed as:
 
 → **Per-client isolated VPS deployments**
 
@@ -156,7 +156,7 @@ Then open:
 
 ## **Marketing Site**
 
-The public marketing site for ClinicFlow is located in the `/marketing` directory. 
+The public marketing site for Clinic Flow is located in the `/marketing` directory. 
 It is built with Vanilla HTML/JS and CSS for maximum performance and a premium feel.
 
 To run the marketing site:
@@ -192,7 +192,7 @@ This allows **clinic-specific intelligence tuning**.
 
 ## **Who This Is For**
 
-ClinicFlow is built for:
+Clinic Flow is built for:
 
 * Independent veterinary clinics  
 * Multi-location practices  
@@ -217,7 +217,7 @@ Private
 
 ## **Final Note**
 
-ClinicFlow is built with a simple principle:
+Clinic Flow is built with a simple principle:
 
 Clinics should focus on care — not operational friction.
 
