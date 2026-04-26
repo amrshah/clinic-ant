@@ -32,7 +32,10 @@ body {
     overflow-x: hidden;
 }
 
-h1, h2, h3, h4 {
+h1,
+h2,
+h3,
+h4 {
     font-family: 'Outfit', sans-serif;
     font-weight: 700;
     letter-spacing: -0.02em;
@@ -246,7 +249,7 @@ header nav {
 }
 
 .preview-body-img img {
-    width: 100%;
+    /* width: 100%; */
     height: 100%;
     object-fit: cover;
     object-position: top;
@@ -305,12 +308,14 @@ section {
     gap: 3rem;
 }
 
-.problem-card, .impact-card {
+.problem-card,
+.impact-card {
     padding: 4rem;
     background: white;
 }
 
-.problem-card h3, .impact-card h3 {
+.problem-card h3,
+.impact-card h3 {
     font-size: 2.25rem;
     margin-bottom: 2rem;
     color: #0f172a;
@@ -540,8 +545,13 @@ footer {
     transform: translateY(0);
 }
 
-.delay-1 { transition-delay: 0.15s; }
-.delay-2 { transition-delay: 0.3s; }
+.delay-1 {
+    transition-delay: 0.15s;
+}
+
+.delay-2 {
+    transition-delay: 0.3s;
+}
 
 @media (max-width: 968px) {
     .hero {
@@ -549,22 +559,24 @@ footer {
         text-align: center;
         padding-top: 10rem;
     }
-    
-    .hero h1 { font-size: 3.5rem; }
-    
+
+    .hero h1 {
+        font-size: 3.5rem;
+    }
+
     .hero-btns {
         justify-content: center;
     }
-    
+
     .diff-items {
         grid-template-columns: 1fr;
         gap: 3rem;
     }
-    
+
     .problem-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .deploy-list {
         flex-direction: column;
         gap: 1.5rem;
