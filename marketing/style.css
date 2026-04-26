@@ -553,9 +553,12 @@ footer {
 .delay-2 {
     transition-delay: 0.3s;
 }
-/* Global Mobile Responsive Overrides */
+
+/* Global Mobile Responsive Overrides */
 @media (max-width: 968px) {
-    html, body {
+
+    html,
+    body {
         overflow-x: hidden !important;
         width: 100% !important;
         position: relative;
@@ -576,7 +579,8 @@ footer {
     }
 
     .nav-links {
-        display: none !important; /* Force hide navigation on mobile */
+        display: none !important;
+        /* Force hide navigation on mobile */
     }
 
     .logo img {
@@ -624,7 +628,8 @@ footer {
     .dashboard-preview-card {
         height: auto !important;
         aspect-ratio: 16/10 !important;
-        transform: none !important; /* Disable 3D rotation to prevent overflow */
+        transform: none !important;
+        /* Disable 3D rotation to prevent overflow */
         border-radius: 16px !important;
     }
 
@@ -643,11 +648,13 @@ footer {
         gap: 1.5rem !important;
     }
 
-    .problem-card, .impact-card {
+    .problem-card,
+    .impact-card {
         padding: 2rem 1.25rem !important;
     }
 
-    .problem-card h3, .impact-card h3 {
+    .problem-card h3,
+    .impact-card h3 {
         font-size: 1.75rem !important;
     }
 
@@ -728,9 +735,8 @@ footer {
     .section-header h2 {
         font-size: 1.75rem !important;
     }
-    
+
     .cta-card h2 {
         font-size: 2rem !important;
     }
-}
 }
