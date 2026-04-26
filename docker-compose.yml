@@ -10,7 +10,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - docs/vps-deployment/.env
+      - .env
     environment:
       - NODE_ENV=production
     restart: always
@@ -42,7 +42,7 @@ services:
     container_name: clinic-flow-tunnel
     command: tunnel run
     env_file:
-      - docs/vps-deployment/.env
+      - .env
     environment:
       - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
     restart: always
