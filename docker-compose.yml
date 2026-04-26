@@ -27,9 +27,9 @@ services:
       - clinic-network
 
   gateway:
-    image: nginx:alpine
-    volumes:
-      - ./config/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
     restart: always
     depends_on:
       - clinic-flow
