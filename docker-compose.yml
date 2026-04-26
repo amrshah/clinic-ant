@@ -37,20 +37,6 @@ services:
     networks:
       - clinic-network
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    container_name: clinic-flow-tunnel
-    command: tunnel run
-    env_file:
-      - .env
-    environment:
-      - TUNNEL_TOKEN=${CLOUDFLARED_TOKEN}
-    restart: always
-    depends_on:
-      - gateway
-    networks:
-      - clinic-network
-
 networks:
   clinic-network:
     driver: bridge
