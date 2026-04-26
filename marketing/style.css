@@ -240,8 +240,16 @@ header nav {
     background: #e2e8f0;
 }
 
-.preview-body {
-    padding: 2.5rem;
+.preview-body-img {
+    height: calc(100% - 48px);
+    overflow: hidden;
+}
+
+.preview-body-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
 }
 
 .skeleton-row {
