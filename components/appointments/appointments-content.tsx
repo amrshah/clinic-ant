@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useAppointments, updateAppointment, deleteAppointment, addInvoice } from '@/lib/data-store'
 import type { Appointment } from '@/lib/types'
 import { useAuth } from '@/components/providers/auth-provider'
+import { useClinic } from '@/components/providers/clinic-provider'
 import { hasPermission } from '@/lib/permissions'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -19,6 +20,7 @@ type StatusFilter = Appointment['status'] | 'all'
 type TypeFilter = Appointment['type'] | 'all'
 
 export function AppointmentsContent() {
+  const { currentClinicId } = useClinic()
   const { appointments, isLoading } = useAppointments()
   const { profile } = useAuth()
   const role = profile?.role
@@ -92,7 +94,7 @@ export function AppointmentsContent() {
   const handleEdit = (apt: Appointment) => { setEditingAppointment(apt); setDialogOpen(true) }
   const handleStatusChange = async (appointment: Appointment, status: Appointment['status']) => {
     try { 
-      await updateAppointment(appointment.id, { status }) 
+      await updateAppointment(appointment.id, { status }, currentClinicId || undefined) 
       
       // Auto-trigger billing if moving to 'billing' status
       if (status === 'billing') {
@@ -105,7 +107,7 @@ export function AppointmentsContent() {
             tax_amount: 0,
             currency: 'USD',
             notes: `Auto-generated draft for appointment on ${appointment.date}`
-          })
+          }, currentClinicId || undefined)
         } catch (err) {
           console.error('Failed to auto-create invoice:', err)
         }

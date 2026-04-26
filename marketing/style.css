@@ -99,8 +99,20 @@ header nav {
 }
 
 .logo img {
-    height: 36px;
+    height: 52px;
     width: auto;
+    transition: var(--transition);
+}
+
+.logo .tagline {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-left: 0.5rem;
+    border-left: 2px solid var(--card-border);
+    padding-left: 0.75rem;
+    display: flex;
+    align-items: center;
 }
 
 .nav-links {
@@ -493,8 +505,11 @@ footer {
 }
 
 .footer-tagline {
-    color: var(--text-dim);
-    font-weight: 500;
+    color: var(--text-main);
+    font-weight: 600;
+    font-size: 1.25rem;
+    max-width: 300px;
+    text-align: right;
 }
 
 .footer-bottom {
@@ -550,5 +565,20 @@ footer {
 
     .cta-card h2 {
         font-size: 3rem;
+    }
+
+    .logo .tagline {
+        display: none;
+    }
+
+    .footer-top {
+        flex-direction: column;
+        gap: 2rem;
+        text-align: center;
+    }
+
+    .footer-tagline {
+        text-align: center;
+        max-width: none;
     }
 }
