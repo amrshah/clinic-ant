@@ -31,10 +31,11 @@ This document serves as the permanent artifact to track the current phase, sprin
 - [ ] Automated SMS and Email Reminders
   - Integrate messaging provider (e.g., Twilio, SendGrid).
   - Create trigger events for upcoming appointments and due vaccinations.
-- [ ] Swagger API Documentation
-  - Add Swagger UI and OpenAPI specifications for all application APIs.
-- [ ] Database Security Hardening
-  - Tighten Row Level Security (RLS) policies for multi-tenant isolation (Ref: Critical Watchlist).
+- [x] Swagger API Documentation
+  - Implemented Swagger UI and comprehensive Markdown documentation in `docs/api-docs/`.
+- [x] Database Security Hardening
+  - Fixed `inventory_transactions` RLS isolation.
+  - Established a full schema registry in `docs/db-schema/`.
 - [ ] Patient Portal (Client View)
   - Allow pet owners to view medical records, upcoming appointments, and pay invoices online.
 - [ ] Telemedicine Integration (Basic)
@@ -49,7 +50,12 @@ This document serves as the permanent artifact to track the current phase, sprin
 
 ---
 
-### Alignment Summary
-We have successfully completed the **Operational Depth** (Phase 2), making the application capable of managing realistic multi-branch clinic workflows from check-in to checkout, inventory accounting, and enterprise-level financial reporting.
+## Technical Evaluations
+- [x] **Laravel Migration Study**: Conducted a comprehensive feasibility study (Ref: `laravel_feasibility_study.md`) evaluating a move from Next.js APIs to Laravel 11. Conversion is on hold.
 
-**Current Focus**: Starting **Phase 3 (Client Engagement & Automation)** to enhance communication and operational efficiency.
+---
+
+### Alignment Summary
+We have transitioned into **Phase 3 (Client Engagement & Automation)** by completing the technical documentation required for enterprise expansion. All database logic (Triggers, Functions, Policies) and API endpoints are now fully documented. 
+
+**Current Focus**: Preparing for the **Patient Portal** and **Telemedicine** integrations.

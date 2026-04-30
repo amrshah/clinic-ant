@@ -1,4 +1,4 @@
-# ClinicFlow — Manual Testing Guide
+# clinicflow — Manual Testing Guide
 
 **Version**: 1.0  
 **Environment**: Local Docker (`http://localhost:3000`)  
@@ -12,11 +12,11 @@ This guide covers end-to-end manual testing procedures for all rollout phases. E
 
 | Role | Email | Password | Branch |
 |---|---|---|---|
-| **Administrator** | admin@ClinicFlow.demo | Admin123! | Toronto |
-| **Veterinarian** | vet@ClinicFlow.demo | Vet12345! | Toronto |
-| **Nurse/Assistant** | nurse@ClinicFlow.demo | Nurse123! | Toronto |
-| **Reception** | reception@ClinicFlow.demo | Recep123! | Toronto |
-| **Technician** | tech@ClinicFlow.demo | Tech1234! | Ottawa |
+| **Administrator** | admin@clinicflow.demo | Admin123! | Toronto |
+| **Veterinarian** | vet@clinicflow.demo | Vet12345! | Toronto |
+| **Nurse/Assistant** | nurse@clinicflow.demo | Nurse123! | Toronto |
+| **Reception** | reception@clinicflow.demo | Recep123! | Toronto |
+| **Technician** | tech@clinicflow.demo | Tech1234! | Ottawa |
 
 ---
 
@@ -30,7 +30,7 @@ This guide covers end-to-end manual testing procedures for all rollout phases. E
 |---|---|---|---|
 | 1 | Navigate to `http://localhost:3000` without being logged in | Redirected to `/auth/login` | ✅ Implemented |
 | 2 | Attempt login with wrong password | Error message shown, no login | ✅ Implemented |
-| 3 | Login as `admin@ClinicFlow.demo / Admin123!` | Redirected to Dashboard | ✅ Implemented |
+| 3 | Login as `admin@clinicflow.demo / Admin123!` | Redirected to Dashboard | ✅ Implemented |
 | 4 | Click **Sign Out** from the top-right user menu | Redirected to `/auth/login`, session cleared | ✅ Implemented |
 | 5 | Navigate directly to `/pets` without logging in | Redirected to `/auth/login` | ✅ Implemented |
 
@@ -38,11 +38,11 @@ This guide covers end-to-end manual testing procedures for all rollout phases. E
 
 | # | Step | Expected Result | Status |
 |---|---|---|---|
-| 1 | Login as `reception@ClinicFlow.demo` | Sidebar should **not** show Medical Records or Audit Logs | ✅ Implemented |
-| 2 | Login as `vet@ClinicFlow.demo` | Sidebar should show Pets, Appointments, Medical Records — **not** Billing or User Management | ✅ Implemented |
-| 3 | Login as `nurse@ClinicFlow.demo` | Sidebar should show Pets and Appointments — **not** Billing or User Management | ✅ Implemented |
-| 4 | Login as `admin@ClinicFlow.demo` | All modules visible including User Management and Audit Logs | ✅ Implemented |
-| 5 | Login as `tech@ClinicFlow.demo` | Medical records visible, landing on Ottawa branch by default | ✅ Implemented |
+| 1 | Login as `reception@clinicflow.demo` | Sidebar should **not** show Medical Records or Audit Logs | ✅ Implemented |
+| 2 | Login as `vet@clinicflow.demo` | Sidebar should show Pets, Appointments, Medical Records — **not** Billing or User Management | ✅ Implemented |
+| 3 | Login as `nurse@clinicflow.demo` | Sidebar should show Pets and Appointments — **not** Billing or User Management | ✅ Implemented |
+| 4 | Login as `admin@clinicflow.demo` | All modules visible including User Management and Audit Logs | ✅ Implemented |
+| 5 | Login as `tech@clinicflow.demo` | Medical records visible, landing on Ottawa branch by default | ✅ Implemented |
 
 ### TC-0.3 — Multi-Branch Data Isolation
 
@@ -317,4 +317,19 @@ Run these core checks after any deployment or schema change:
 | **Appointment automation** | Status transitions are manual; lifecycle automation is Phase 2 pending |
 | **AI Assistant** | Chat UI exists but responses are not yet wired to live clinic data |
 | **Reporting** | No visual charts yet; revenue visible as a raw dashboard counter only |
+
+## Tests Performed
+- ✅ Phase 1: Core CRUD verified
+- ⚠️ Phase 2: Some items pending (Inventory, Appointments)
+- 🔲 Phase 3: AI features pending
+- 🔲 Phase 4: Enterprise features pending
+
+# Tests Performed/Results:
+1. Pet: Create, Update, delete, assign owner working. Search by pet name, breed, owner name Only; Age, Weight, species are not searchable yet
+2. Owner: Create, Update, delete, assign pet working.
+3. Appointment: Create, Update, delete working.
+4. Dashboard: All metrics working.
+5. Inventory: Create, Update, delete working.
+6. Invoice: Create, Update, delete working.
+7. Users: Create, Update, delete working.
 
