@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuthContext, checkPermission, createAuditLog, isAuthContext } from '@/lib/api-helpers'
 import { getInvoices } from '@/lib/api/billing'
 import { logger } from '@/lib/logger'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
@@ -34,7 +35,9 @@ export async function POST(req: NextRequest) {
     // Build invoice record
     const targetClinicId = ctx.profile.clinic_id === 'all' ? ctx.profile.default_clinic_id : ctx.profile.clinic_id
     
-    const { data: invoice, error } = await ctx.supabase
+    const adminSupabase = createAdminClient()
+    
+    const { data: invoice, error } = await adminSupabase
         .from('invoices')
         .insert({
             organization_id: ctx.profile.org_id,
@@ -59,16 +62,24 @@ export async function POST(req: NextRequest) {
 
     // Insert line items
     if (items && Array.isArray(items) && items.length > 0) {
+        // Use correct column names: inventory_item_id, name (matching actual schema)
+        // Removed category as it does not exist in the actual table
         const invoiceItems = items.map((item: any) => ({
-            ...item,
             invoice_id: invoice.id,
+            inventory_item_id: item.item_id || item.inventory_item_id, // handle both
+            name: item.title || item.name, // handle both
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            total_price: item.total_price
         }))
-        const { error: itemsError } = await ctx.supabase
+        
+        const { error: itemsError } = await adminSupabase
             .from('invoice_items')
             .insert(invoiceItems)
             
         if (itemsError) {
             logger.error('Failed to insert invoice items', itemsError, { invoice_id: invoice.id })
+            // We don't return 500 here to allow the invoice to exist even if items fail
         }
     }
 
@@ -87,20 +98,31 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json()
     const { id, ...updateData } = body
 
-    logger.info('Updating invoice', { invoice_id: id, updates: updateData })
+    logger.info('Updating invoice', { invoice_id: id, org_id: ctx.profile.org_id, updates: updateData })
 
-    const { data: invoice, error } = await ctx.supabase
+    const adminSupabase = createAdminClient()
+
+    // Perform update
+    // The database trigger 'on_invoice_paid_deduct_inventory' (on invoices) 
+    // will now handle automatic inventory deduction when status changes to 'paid'.
+    const { data: results, error } = await adminSupabase
         .from('invoices')
         .update(updateData)
         .eq('id', id)
         .eq('organization_id', ctx.profile.org_id)
         .select()
-        .single()
 
     if (error) {
          logger.error('Failed to update invoice', error, { invoice_id: id })
          return NextResponse.json({ error: error.message }, { status: 500 })
     }
+
+    if (!results || results.length === 0) {
+        logger.warn('Invoice update matched no rows', { invoice_id: id, org_id: ctx.profile.org_id })
+        return NextResponse.json({ error: 'Invoice not found or access denied' }, { status: 404 })
+    }
+
+    const invoice = results[0]
 
     return NextResponse.json(invoice)
 }

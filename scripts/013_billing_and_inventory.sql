@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS invoices (
         currency TEXT DEFAULT 'CAD',
         due_date DATE,
         notes TEXT,
+        inventory_deducted BOOLEAN DEFAULT false,
         created_at TIMESTAMPTZ DEFAULT now(),
         updated_at TIMESTAMPTZ DEFAULT now(),
         created_by UUID REFERENCES profiles(id) ON DELETE
@@ -27,22 +28,11 @@ ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
 CREATE TABLE IF NOT EXISTS invoice_items (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     invoice_id UUID NOT NULL REFERENCES invoices(id) ON DELETE CASCADE,
-    title TEXT NOT NULL,
-    description TEXT,
+    name TEXT NOT NULL,
     quantity NUMERIC(15, 2) NOT NULL DEFAULT 1.00,
     unit_price NUMERIC(15, 2) NOT NULL DEFAULT 0.00,
     total_price NUMERIC(15, 2) NOT NULL DEFAULT 0.00,
-    category TEXT NOT NULL CHECK (
-        category IN (
-            'service',
-            'medication',
-            'lab',
-            'other',
-            'product'
-        )
-    ),
-    item_id UUID,
-    -- Optional link to inventory_items
+    inventory_item_id UUID, -- Link to inventory_items
     created_at TIMESTAMPTZ DEFAULT now()
 );
 ALTER TABLE invoice_items ENABLE ROW LEVEL SECURITY;
@@ -69,12 +59,14 @@ ALTER TABLE inventory_items ENABLE ROW LEVEL SECURITY;
 CREATE TABLE IF NOT EXISTS inventory_transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     item_id UUID NOT NULL REFERENCES inventory_items(id) ON DELETE CASCADE,
+    organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
+    clinic_id UUID REFERENCES clinics(id) ON DELETE SET NULL,
     type TEXT NOT NULL CHECK (type IN ('in', 'out', 'adjustment', 'return')),
     quantity NUMERIC(15, 2) NOT NULL,
     reason TEXT,
     created_at TIMESTAMPTZ DEFAULT now(),
-    created_by UUID REFERENCES profiles(id) ON DELETE
-    SET NULL
+    created_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+    updated_at TIMESTAMPTZ DEFAULT now()
 );
 ALTER TABLE inventory_transactions ENABLE ROW LEVEL SECURITY;
 -- Indexes

@@ -115,13 +115,11 @@ export interface Invoice {
 export interface InvoiceItem {
   id: string
   invoice_id: string
-  title: string
-  description: string | null
+  name: string
   quantity: number
   unit_price: number
   total_price: number
-  category: 'service' | 'medication' | 'lab' | 'other' | 'product'
-  item_id: string | null
+  inventory_item_id: string | null
   created_at: string
 }
 
@@ -145,6 +143,8 @@ export interface InventoryItem {
 export interface InventoryTransaction {
   id: string
   item_id: string
+  organization_id: string
+  clinic_id: string | null
   type: 'in' | 'out' | 'adjustment' | 'return'
   quantity: number
   reason: string | null

@@ -55,7 +55,7 @@ export function InvoiceFormDialog({ open, onOpenChange, preselectedOwnerId }: In
   })
 
   const [items, setItems] = useState<PartialInvoiceItem[]>([
-    { title: '', category: 'service', quantity: 1, unit_price: 0, total_price: 0 }
+    { name: '', quantity: 1, unit_price: 0, total_price: 0, inventory_item_id: null }
   ])
 
   useEffect(() => {
@@ -69,7 +69,7 @@ export function InvoiceFormDialog({ open, onOpenChange, preselectedOwnerId }: In
       tax_rate: 13,
       discount_amount: 0,
     })
-    setItems([{ title: '', category: 'service', quantity: 1, unit_price: 0, total_price: 0 }])
+    setItems([{ name: '', quantity: 1, unit_price: 0, total_price: 0, inventory_item_id: null }])
   }, [open, preselectedOwnerId, owners])
 
   const subtotal = items.reduce((acc, item) => acc + (item.quantity * item.unit_price), 0)
@@ -79,7 +79,7 @@ export function InvoiceFormDialog({ open, onOpenChange, preselectedOwnerId }: In
   const finalTotal = taxableAmount + taxTotal
 
   const handleAddItem = () => {
-    setItems([...items, { title: '', category: 'service', quantity: 1, unit_price: 0, total_price: 0 }])
+    setItems([...items, { name: '', quantity: 1, unit_price: 0, total_price: 0, inventory_item_id: null }])
   }
 
   const handleRemoveItem = (index: number) => {
@@ -102,11 +102,10 @@ export function InvoiceFormDialog({ open, onOpenChange, preselectedOwnerId }: In
       const newItems = [...items]
       newItems[index] = {
         ...newItems[index],
-        title: service.name,
+        name: service.name,
         unit_price: service.price,
-        category: service.category as any,
         total_price: service.price * newItems[index].quantity,
-        item_id: null
+        inventory_item_id: null
       }
       setItems(newItems)
       return
@@ -118,11 +117,10 @@ export function InvoiceFormDialog({ open, onOpenChange, preselectedOwnerId }: In
       const newItems = [...items]
       newItems[index] = {
         ...newItems[index],
-        title: invItem.name,
+        name: invItem.name,
         unit_price: Number(invItem.price),
-        category: (invItem.category?.toLowerCase() || 'product') as any,
         total_price: Number(invItem.price) * newItems[index].quantity,
-        item_id: invItem.id
+        inventory_item_id: invItem.id
       }
       setItems(newItems)
     }
@@ -132,8 +130,8 @@ export function InvoiceFormDialog({ open, onOpenChange, preselectedOwnerId }: In
     e.preventDefault()
     if (!formData.owner_id || items.length === 0) return
     
-    if (items.some(i => !i.title)) {
-        alert("Please provide a title for all invoice items.")
+    if (items.some(i => !i.name)) {
+        alert("Please provide a name for all invoice items.")
         return
     }
 
@@ -223,22 +221,13 @@ export function InvoiceFormDialog({ open, onOpenChange, preselectedOwnerId }: In
                           </SelectContent>
                         </Select>
                         <Input 
-                          value={item.title} 
-                          onChange={(e) => updateItem(index, 'title', e.target.value)} 
+                          value={item.name} 
+                          onChange={(e) => updateItem(index, 'name', e.target.value)} 
                           placeholder="Or type custom item..." 
                           required 
                           className="flex-1"
                         />
                       </div>
-                    </div>
-                    <div className="w-full sm:w-32 space-y-2 shrink-0">
-                      <Label className="text-xs">Category</Label>
-                      <Select value={item.category} onValueChange={(v: any) => updateItem(index, 'category', v)}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {categoryOptions.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
                     </div>
                     <div className="w-20 space-y-2 shrink-0">
                       <Label className="text-xs">Qty</Label>

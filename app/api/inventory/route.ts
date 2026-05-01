@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getAuthContext, checkPermission, createAuditLog, isAuthContext } from '@/lib/api-helpers'
 import { getInventory } from '@/lib/api/inventory'
 import { logger } from '@/lib/logger'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
@@ -31,7 +32,9 @@ export async function POST(req: NextRequest) {
 
     const targetClinicId = ctx.profile.clinic_id === 'all' ? ctx.profile.default_clinic_id : ctx.profile.clinic_id
 
-    const { data, error } = await ctx.supabase
+    const adminSupabase = createAdminClient()
+
+    const { data, error } = await adminSupabase
         .from('inventory_items')
         .insert({
             ...body,
