@@ -35,12 +35,11 @@ interface AgentSettingsDialogProps {
 }
 
 const modelOptions = [
-  { value: 'anthropic/claude-opus-4.5', label: 'Claude Opus 4.5', provider: 'Anthropic', recommended: true },
-  { value: 'anthropic/claude-sonnet-4', label: 'Claude Sonnet 4', provider: 'Anthropic' },
+  { value: 'anthropic/claude-3-5-sonnet', label: 'Claude 3.5 Sonnet', provider: 'Anthropic', recommended: true },
+  { value: 'anthropic/claude-3-opus', label: 'Claude 3 Opus', provider: 'Anthropic' },
   { value: 'anthropic/claude-3-5-haiku', label: 'Claude 3.5 Haiku', provider: 'Anthropic' },
   { value: 'openai/gpt-4o', label: 'GPT-4o', provider: 'OpenAI' },
   { value: 'openai/gpt-4o-mini', label: 'GPT-4o Mini', provider: 'OpenAI' },
-  { value: 'xai/grok-3', label: 'Grok 3', provider: 'xAI' },
 ]
 
 export function AgentSettingsDialog({ open, onOpenChange }: AgentSettingsDialogProps) {
@@ -68,7 +67,7 @@ export function AgentSettingsDialog({ open, onOpenChange }: AgentSettingsDialogP
 
   const handleReset = () => {
     const defaultSettings = {
-      model: 'anthropic/claude-opus-4.5',
+      model: 'anthropic/claude-3-5-sonnet',
       temperature: 0.7,
       systemPrompt: `You are a helpful veterinary assistant for Clinic Flow. You help staff with:
 - Looking up patient and owner information

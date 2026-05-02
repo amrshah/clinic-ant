@@ -144,7 +144,7 @@ export function OwnerDetailContent({ ownerId }: OwnerDetailContentProps) {
                   <div className="flex size-9 items-center justify-center rounded-full bg-muted"><MapPin className="size-4" /></div>
                   <div>
                     <p className="text-sm text-muted-foreground">Address</p>
-                    <p className="font-medium">{[owner.address, owner.city, owner.province, owner.postal_code].filter(Boolean).join(', ')}</p>
+                    <p className="font-medium">{[owner.address, owner.city, owner.province_state, owner.postal_code].filter(Boolean).join(', ')}</p>
                   </div>
                 </div>
               )}

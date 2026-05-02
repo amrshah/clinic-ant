@@ -29,19 +29,19 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
   let owner = rawOwner
 
-  // If we are not in consolidated mode, attempt to get decrypted data via RPC
-  if (!isConsolidated) {
-    const { data: decryptedData, error: rpcError } = await ctx.supabase.rpc('get_owner_by_id_decrypted', {
-      p_owner_id: id,
-      p_clinic_id: ctx.profile.clinic_id,
-      p_key: ENCRYPTION_KEY,
-    })
-    
-    if (!rpcError && decryptedData) {
-      owner = Array.isArray(decryptedData) ? decryptedData[0] : decryptedData
-    } else {
-      console.warn('RPC get_owner_by_id_decrypted failed or returned empty. Falling back to raw data.', rpcError)
-    }
+  // Attempt to get decrypted data via RPC
+  const targetClinicId = isConsolidated ? null : ctx.profile.clinic_id
+  
+  const { data: decryptedData, error: rpcError } = await ctx.supabase.rpc('get_owner_by_id_decrypted', {
+    p_owner_id: id,
+    p_clinic_id: targetClinicId,
+    p_key: ENCRYPTION_KEY,
+  })
+  
+  if (!rpcError && decryptedData) {
+    owner = Array.isArray(decryptedData) ? decryptedData[0] : decryptedData
+  } else if (rpcError) {
+    console.warn('RPC get_owner_by_id_decrypted failed. Falling back to raw data.', rpcError)
   }
 
   // Also fetch the owner's pets

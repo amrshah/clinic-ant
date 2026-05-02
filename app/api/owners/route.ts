@@ -14,19 +14,11 @@ export async function GET(request: Request) {
 
   try {
     const isConsolidated = ctx.profile.clinic_id === 'all'
-    let data = null
-    let error = null
-
-    if (!isConsolidated) {
-      const rpcResult = await ctx.supabase.rpc('get_owners_decrypted', {
-        p_clinic_id: ctx.profile.clinic_id,
-        p_key: ENCRYPTION_KEY,
-      })
-      data = rpcResult.data
-      error = rpcResult.error
-    } else {
-      error = new Error("Bypassing RPC for consolidated view")
-    }
+    const targetClinicId = isConsolidated ? null : ctx.profile.clinic_id
+    const { data, error } = await ctx.supabase.rpc('get_owners_decrypted', {
+      p_clinic_id: targetClinicId,
+      p_key: ENCRYPTION_KEY,
+    })
 
     if (error) {
       if (!isConsolidated) console.error('RPC get_owners_decrypted failed:', error)
