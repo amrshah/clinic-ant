@@ -73,22 +73,25 @@ export async function POST(req: NextRequest) {
 
   const targetClinicId = ctx.profile.clinic_id === 'all' ? ctx.profile.default_clinic_id : ctx.profile.clinic_id
 
-  const { data, error } = await ctx.supabase.from('owners').insert({
-    organization_id: ctx.profile.org_id,
-    clinic_id: targetClinicId,
-    first_name: first_name || null,
-    last_name: last_name || null,
-    email: email || null,
-    phone: phone || null,
-    address: address || null,
-    province: province || null,
-    display_name: display_name,
-    notes: notes || null,
-    created_by: ctx.user.id
-  }).select().single()
+  const { data: ownerId, error } = await ctx.supabase.rpc('insert_owner_encrypted', {
+    p_org_id: ctx.profile.org_id,
+    p_clinic_id: targetClinicId,
+    p_first_name: first_name || null,
+    p_last_name: last_name || null,
+    p_email: email || null,
+    p_phone: phone || null,
+    p_address: address || null,
+    p_city: city || null,
+    p_province: province || null,
+    p_postal_code: postal_code || null,
+    p_display_name: display_name || null,
+    p_notes: notes || null,
+    p_created_by: ctx.user.id,
+    p_key: ENCRYPTION_KEY
+  })
 
   if (error) {
-    console.error('Database error creating owner:', error)
+    console.error('Database error creating owner via RPC:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
@@ -98,9 +101,9 @@ export async function POST(req: NextRequest) {
     clinic_id: ctx.profile.clinic_id,
     action: 'create',
     module: 'owners',
-    record_id: data.id,
+    record_id: ownerId,
     details: { display_name },
   })
 
-  return NextResponse.json({ id: data.id, display_name }, { status: 201 })
+  return NextResponse.json({ id: ownerId, display_name }, { status: 201 })
 }
