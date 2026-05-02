@@ -98,6 +98,6 @@ BEGIN
     province_state = COALESCE(p_province, province_state),
     postal_code = COALESCE(p_postal_code, postal_code),
     updated_at = NOW()
-  WHERE id = p_owner_id AND clinic_id = p_clinic_id;
+  WHERE id = p_owner_id AND (p_clinic_id IS NULL OR clinic_id = p_clinic_id);
 END;
 $$;

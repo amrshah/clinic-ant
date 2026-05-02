@@ -81,10 +81,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params
   const body = await req.json()
 
-  const { first_name, last_name, email, phone, address, city, province, postal_code, notes } = body
+  const { first_name, last_name, email, phone, address, city, province_state, postal_code, notes } = body
   const display_name = first_name && last_name ? `${first_name} ${last_name}` : undefined
 
-  const targetClinicId = ctx.profile.clinic_id === 'all' ? ctx.profile.default_clinic_id : ctx.profile.clinic_id
+  const targetClinicId = ctx.profile.clinic_id === 'all' ? null : ctx.profile.clinic_id
 
   const { error } = await ctx.supabase.rpc('update_owner_encrypted', {
     p_owner_id: id,
@@ -95,7 +95,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     p_phone: phone || null,
     p_address: address || null,
     p_city: city || null,
-    p_province: province || null,
+    p_province: province_state || null,
     p_postal_code: postal_code || null,
     p_display_name: display_name || null,
     p_notes: notes || null,

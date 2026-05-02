@@ -28,7 +28,7 @@ export interface Owner {
   phone?: string
   address?: string
   city?: string
-  province?: string
+  province_state?: string
   postal_code?: string
   clinic_id?: string
   created_at: string

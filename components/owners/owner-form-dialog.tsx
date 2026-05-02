@@ -36,7 +36,7 @@ export function OwnerFormDialog({ open, onOpenChange, owner }: OwnerFormDialogPr
   const initialized = useRef(false)
 
   const [formData, setFormData] = useState({
-    first_name: '', last_name: '', email: '', phone: '', address: '', city: '', province: '', postal_code: '',
+    first_name: '', last_name: '', email: '', phone: '', address: '', city: '', province_state: '', postal_code: '',
   })
 
   const [quickPet, setQuickPet] = useState({
@@ -58,10 +58,10 @@ export function OwnerFormDialog({ open, onOpenChange, owner }: OwnerFormDialogPr
         first_name: owner.first_name ?? '', last_name: owner.last_name ?? '',
         email: owner.email ?? '', phone: owner.phone ?? '',
         address: owner.address ?? '', city: owner.city ?? '',
-        province: owner.province ?? '', postal_code: owner.postal_code ?? '',
+        province_state: owner.province_state ?? '', postal_code: owner.postal_code ?? '',
       })
     } else {
-      setFormData({ first_name: '', last_name: '', email: '', phone: '', address: '', city: '', province: '', postal_code: '' })
+      setFormData({ first_name: '', last_name: '', email: '', phone: '', address: '', city: '', province_state: '', postal_code: '' })
     }
   }, [open, owner])
 
@@ -130,7 +130,7 @@ export function OwnerFormDialog({ open, onOpenChange, owner }: OwnerFormDialogPr
             </div>
             <div className="space-y-2">
               <Label htmlFor="province">Province</Label>
-              <Input id="province" value={formData.province} onChange={(e) => setFormData({ ...formData, province: e.target.value })} placeholder="ON" />
+              <Input id="province" value={formData.province_state} onChange={(e) => setFormData({ ...formData, province_state: e.target.value })} placeholder="ON" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="postal_code">Postal Code</Label>
