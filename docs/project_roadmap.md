@@ -1,5 +1,5 @@
 # Project Roadmap & Progress Tracker
-**Updated: April 21, 2026**
+**Updated: May 4, 2026**
 
 This document serves as the permanent artifact to track the current phase, sprint, and overall progress of the project.
 
@@ -26,8 +26,15 @@ This document serves as the permanent artifact to track the current phase, sprin
 - [x] **Appointment Lifecycle Automation**: Status transitions correctly auto-generate invoices during billing.
 - [x] **Enterprise Analytics**: Advanced financial reporting revenue breakdown by branch inside the Billing page.
 
-## Phase 3: Client Engagement & Automation (IN PROGRESS)
 *Goal: Enhance client communication and operational efficiency through automated notifications.*
+- [x] **Medical Records Stabilization**
+  - Resolved `veterinarian_id` schema mismatch errors.
+  - Implemented veterinarian selection dropdown with current-user prefilling.
+  - Added relational profile joins for medical record history displays.
+- [x] **Advanced Billing Management**
+  - Implemented full **Invoice Editing** functionality.
+  - Developed backend synchronization for invoice line items (medicine/services).
+  - Integrated "View/Edit" actions into the billing dashboard.
 - [ ] Automated SMS and Email Reminders
   - Integrate messaging provider (e.g., Twilio, SendGrid).
   - Create trigger events for upcoming appointments and due vaccinations.
@@ -58,4 +65,4 @@ This document serves as the permanent artifact to track the current phase, sprin
 ### Alignment Summary
 We have transitioned into **Phase 3 (Client Engagement & Automation)** by completing the technical documentation required for enterprise expansion. All database logic (Triggers, Functions, Policies) and API endpoints are now fully documented. 
 
-**Current Focus**: Preparing for the **Patient Portal** and **Telemedicine** integrations.
+**Current Focus**: Finalizing **Client Engagement** features and moving toward **Intelligence & AI Integration**.
