@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { useInvoices, updateInvoice } from '@/lib/data-store'
 import { InvoiceFormDialog } from './invoice-form-dialog'
+import { InvoiceEditorDialog } from './invoice-editor-dialog'
 import { MockPaymentDialog } from './mock-payment-dialog'
 import {
     Card,
@@ -28,6 +29,7 @@ import {
     AlertCircle,
     Plus,
     Building2,
+    Eye,
 } from 'lucide-react'
 import type { Invoice } from '@/lib/types'
 import { useClinic } from '@/components/providers/clinic-provider'
@@ -40,6 +42,7 @@ export function BillingContent() {
     const { currentClinicId } = useClinic()
     const isConsolidated = currentClinicId === 'all'
     const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false)
+    const [editInvoiceId, setEditInvoiceId] = useState<string | null>(null)
     const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null)
 
     const stats = {
@@ -224,12 +227,18 @@ export function BillingContent() {
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            {invoice.status !== 'paid' && invoice.status !== 'cancelled' && (
-                                                <Button size="sm" onClick={() => setSelectedInvoice(invoice)}>
-                                                    <CreditCard className="size-4 mr-2" />
-                                                    Pay
+                                            <div className="flex justify-end gap-2">
+                                                <Button variant="ghost" size="sm" onClick={() => setEditInvoiceId(invoice.id)}>
+                                                    <Eye className="size-4 mr-2" />
+                                                    View/Edit
                                                 </Button>
-                                            )}
+                                                {invoice.status !== 'paid' && invoice.status !== 'cancelled' && (
+                                                    <Button size="sm" onClick={() => setSelectedInvoice(invoice)}>
+                                                        <CreditCard className="size-4 mr-2" />
+                                                        Pay
+                                                    </Button>
+                                                )}
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))
@@ -240,6 +249,12 @@ export function BillingContent() {
             </Card>
             
             <InvoiceFormDialog open={invoiceDialogOpen} onOpenChange={setInvoiceDialogOpen} />
+            
+            <InvoiceEditorDialog 
+                open={!!editInvoiceId} 
+                onOpenChange={(open) => !open && setEditInvoiceId(null)} 
+                invoiceId={editInvoiceId} 
+            />
             
             <MockPaymentDialog 
                 open={!!selectedInvoice} 

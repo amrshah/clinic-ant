@@ -96,15 +96,15 @@ export async function PATCH(req: NextRequest) {
     if (denied) return denied
 
     const body = await req.json()
-    const { id, ...updateData } = body
+    const { id, items, ...updateData } = body
 
-    logger.info('Updating invoice', { invoice_id: id, org_id: ctx.profile.org_id, updates: updateData })
+    if (!id) return NextResponse.json({ error: 'Invoice ID is required' }, { status: 400 })
+
+    logger.info('Updating invoice', { invoice_id: id, org_id: ctx.profile.org_id, has_items: !!items })
 
     const adminSupabase = createAdminClient()
 
-    // Perform update
-    // The database trigger 'on_invoice_paid_deduct_inventory' (on invoices) 
-    // will now handle automatic inventory deduction when status changes to 'paid'.
+    // 1. Update invoice metadata
     const { data: results, error } = await adminSupabase
         .from('invoices')
         .update(updateData)
@@ -118,13 +118,41 @@ export async function PATCH(req: NextRequest) {
     }
 
     if (!results || results.length === 0) {
-        logger.warn('Invoice update matched no rows', { invoice_id: id, org_id: ctx.profile.org_id })
         return NextResponse.json({ error: 'Invoice not found or access denied' }, { status: 404 })
     }
 
-    const invoice = results[0]
+    // 2. Update invoice items if provided
+    if (items && Array.isArray(items)) {
+        // Delete existing items
+        const { error: deleteError } = await adminSupabase
+            .from('invoice_items')
+            .delete()
+            .eq('invoice_id', id)
+        
+        if (deleteError) {
+            logger.error('Failed to clear invoice items', deleteError, { invoice_id: id })
+        } else {
+            // Insert new items
+            const invoiceItems = items.map((item: any) => ({
+                invoice_id: id,
+                inventory_item_id: item.inventory_item_id || null,
+                name: item.name,
+                quantity: item.quantity,
+                unit_price: item.unit_price,
+                total_price: item.total_price
+            }))
 
-    return NextResponse.json(invoice)
+            const { error: itemsError } = await adminSupabase
+                .from('invoice_items')
+                .insert(invoiceItems)
+            
+            if (itemsError) {
+                logger.error('Failed to re-insert invoice items', itemsError, { invoice_id: id })
+            }
+        }
+    }
+
+    return NextResponse.json(results[0])
 }
 
 
