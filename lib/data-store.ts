@@ -392,3 +392,15 @@ export async function addInventoryTransaction(body: Record<string, unknown>, cli
   return true
 }
 
+export async function deleteInventoryItem(id: string, clinicId?: string) {
+  const url = clinicId ? `/api/inventory/${id}?clinicId=${clinicId}` : `/api/inventory/${id}`
+  const res = await fetch(url, { method: 'DELETE' })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Failed to delete item' }))
+    throw new Error(err.error)
+  }
+  mutate(key => typeof key === 'string' && key.startsWith('/api/inventory'))
+  mutate(key => typeof key === 'string' && key.startsWith('/api/dashboard'))
+  return true
+}
+

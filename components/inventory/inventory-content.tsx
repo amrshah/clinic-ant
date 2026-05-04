@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useInventory } from '@/lib/data-store'
+import { useInventory, deleteInventoryItem } from '@/lib/data-store'
+import { useClinic } from '@/components/providers/clinic-provider'
 import type { InventoryItem } from '@/lib/types'
 import { InventoryFormDialog } from './inventory-form-dialog'
 import { StockAdjustmentDialog } from './stock-adjustment-dialog'
@@ -28,9 +29,11 @@ import {
     TrendingUp,
     Plus,
     Box,
+    Trash2,
 } from 'lucide-react'
 
 export function InventoryContent() {
+    const { currentClinicId } = useClinic()
     const { inventory, isLoading } = useInventory()
     const [addItemOpen, setAddItemOpen] = useState(false)
     const [adjustStockItem, setAdjustStockItem] = useState<InventoryItem | null>(null)
@@ -170,9 +173,27 @@ export function InventoryContent() {
                                             )}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="sm" onClick={() => setAdjustStockItem(item as InventoryItem)}>
-                                                Adjust
-                                            </Button>
+                                            <div className="flex justify-end gap-2">
+                                                <Button variant="ghost" size="sm" onClick={() => setAdjustStockItem(item as InventoryItem)}>
+                                                    Adjust
+                                                </Button>
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="icon" 
+                                                    className="size-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                    onClick={async () => {
+                                                        if (confirm(`Are you sure you want to delete ${item.name}?`)) {
+                                                            try {
+                                                                await deleteInventoryItem(item.id, currentClinicId || undefined)
+                                                            } catch (err: any) {
+                                                                alert(err.message)
+                                                            }
+                                                        }
+                                                    }}
+                                                >
+                                                    <Trash2 className="size-4" />
+                                                </Button>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
                                 ))

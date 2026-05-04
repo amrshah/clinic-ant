@@ -27,11 +27,18 @@ export function ClinicSwitcher() {
 
   const currentClinic = clinics.find((c) => c.id === currentClinicId)
 
-  // Auto-select based on priority: localStorage -> assigned branch -> consolidated
+  // Auto-select based on priority: profile default (new session) -> localStorage -> first available
   React.useEffect(() => {
     if (contextLoading || clinicsLoading || clinics.length === 0) return
     
-    if (!currentClinicId) {
+    const sessionStarted = sessionStorage.getItem('clinic_session_started')
+    
+    if (!sessionStarted && profile?.default_clinic_id) {
+      // New session: Always use profile default
+      setCurrentClinicId(profile.default_clinic_id)
+      sessionStorage.setItem('clinic_session_started', 'true')
+    } else if (!currentClinicId) {
+      // Fallback for subsequent loads or if no profile default
       const saved = localStorage.getItem('currentClinicId')
       if (saved) {
         setCurrentClinicId(saved)
