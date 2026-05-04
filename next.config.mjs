@@ -22,6 +22,5 @@ export default withSentryConfig(nextConfig, {
     disable: true,
   },
 
-  // Disable automatic Vercel Cron monitor wrapping (not applicable).
-  automaticVercelMonitors: false,
+
 })

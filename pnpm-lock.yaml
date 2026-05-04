@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@ai-sdk/anthropic':
+    specifier: ^3.0.74
+    version: 3.0.74(zod@3.25.76)
   '@ai-sdk/openai':
     specifier: ^3.0.58
     version: 3.0.58(zod@3.25.76)
@@ -161,6 +164,9 @@ dependencies:
   recharts:
     specifier: 2.15.4
     version: 2.15.4(react-dom@19.2.0)(react@19.2.0)
+  require-in-the-middle:
+    specifier: ^8.0.1
+    version: 8.0.1
   sonner:
     specifier: ^1.7.4
     version: 1.7.4(react-dom@19.2.0)(react@19.2.0)
@@ -193,6 +199,9 @@ devDependencies:
   '@types/react-dom':
     specifier: ^19
     version: 19.2.3(@types/react@19.2.14)
+  baseline-browser-mapping:
+    specifier: ^2.10.27
+    version: 2.10.27
   dotenv:
     specifier: ^17.4.2
     version: 17.4.2
@@ -213,6 +222,17 @@ devDependencies:
     version: 5.9.3
 
 packages:
+
+  /@ai-sdk/anthropic@3.0.74(zod@3.25.76):
+    resolution: {integrity: sha512-Xew9rfz9WWhDSyF8rNhjT/XWOWelNfJrMlmG0Ahw210hStisRpQZ1s+7VeI9JTJOZ5y5tXqBi5kfPwYnCfyRTA==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+    dependencies:
+      '@ai-sdk/provider': 3.0.10
+      '@ai-sdk/provider-utils': 4.0.26(zod@3.25.76)
+      zod: 3.25.76
+    dev: false
 
   /@ai-sdk/gateway@3.0.17(zod@3.25.76):
     resolution: {integrity: sha512-mCz50GlBPyBV96Wcll1Mpaz56MVFuHL+bwRWGkIsCJwKAKIfdgUZecFzS3gckpHGaqP5+BYnmyJocIMzUhTQ2A==}
@@ -3978,10 +3998,10 @@ packages:
     engines: {node: 18 || 20 || >=22}
     dev: false
 
-  /baseline-browser-mapping@2.9.19:
-    resolution: {integrity: sha512-ipDqC8FrAl/76p2SSWKSI+H9tFwm7vYqXQrItCuiVPt26Km0jS+NzSsBWAaBusvSbQcfJG+JitdMm+wZAgTYqg==}
+  /baseline-browser-mapping@2.10.27:
+    resolution: {integrity: sha512-zEs/ufmZoUd7WftKpKyXaT6RFxpQ5Qm9xytKRHvJfxFV9DFJkZph9RvJ1LcOUi0Z1ZVijMte65JbILeV+8QQEA==}
+    engines: {node: '>=6.0.0'}
     hasBin: true
-    dev: false
 
   /brace-expansion@5.0.5:
     resolution: {integrity: sha512-VZznLgtwhn+Mact9tfiwx64fA9erHH/MCXEUfB/0bX/6Fz6ny5EGTXYltMocqg4xFAQZtnO3DHWWXi8RiuN7cQ==}
@@ -3995,7 +4015,7 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
     dependencies:
-      baseline-browser-mapping: 2.9.19
+      baseline-browser-mapping: 2.10.27
       caniuse-lite: 1.0.30001770
       electron-to-chromium: 1.5.286
       node-releases: 2.0.27
