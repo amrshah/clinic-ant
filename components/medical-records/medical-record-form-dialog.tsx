@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { addMedicalRecord, usePets } from '@/lib/data-store'
+import { addMedicalRecord, usePets, useStaff } from '@/lib/data-store'
 import type { MedicalRecord } from '@/lib/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +10,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useClinic } from '@/components/providers/clinic-provider'
+import { useAuth } from '@/components/providers/auth-provider'
+import { formatStaffName } from '@/lib/utils'
 
 interface MedicalRecordFormDialogProps {
   open: boolean
@@ -26,20 +28,34 @@ const typeOptions: { value: MedicalRecord['type']; label: string }[] = [
 export function MedicalRecordFormDialog({ open, onOpenChange, petId: initialPetId }: MedicalRecordFormDialogProps) {
   const { currentClinicId } = useClinic()
   const { pets } = usePets()
+  const { staff } = useStaff()
+  const { profile } = useAuth()
   const [submitting, setSubmitting] = useState(false)
 
   const [formData, setFormData] = useState({
-    pet_id: initialPetId || '', date: '', type: 'vaccination' as MedicalRecord['type'],
-    title: '', description: '', veterinarian: '',
+    pet_id: initialPetId || '', 
+    date: '', 
+    type: 'vaccination' as MedicalRecord['type'],
+    title: '', 
+    description: '', 
+    veterinarian_id: '',
   })
 
+  const vets = staff.filter(s => s.role === 'veterinarian')
+
   useEffect(() => {
+    if (!open) return
+
     const today = new Date().toISOString().split('T')[0]
     setFormData({
-      pet_id: initialPetId || pets[0]?.id || '', date: today,
-      type: 'vaccination', title: '', description: '', veterinarian: '',
+      pet_id: initialPetId || pets[0]?.id || '', 
+      date: today,
+      type: 'vaccination', 
+      title: '', 
+      description: '', 
+      veterinarian_id: profile?.id || '',
     })
-  }, [initialPetId, pets, open])
+  }, [initialPetId, pets, open, profile])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,7 +95,20 @@ export function MedicalRecordFormDialog({ open, onOpenChange, petId: initialPetI
             </div>
             <div className="space-y-2">
               <Label htmlFor="vet">Veterinarian</Label>
-              <Input id="vet" value={formData.veterinarian} onChange={(e) => setFormData({ ...formData, veterinarian: e.target.value })} placeholder="Dr. Smith" required />
+              <Select value={formData.veterinarian_id} onValueChange={(v) => setFormData({ ...formData, veterinarian_id: v })}>
+                <SelectTrigger id="vet"><SelectValue placeholder="Select veterinarian" /></SelectTrigger>
+                <SelectContent>
+                  {vets.length === 0 ? (
+                    <div className="p-2 text-xs text-muted-foreground text-center">No veterinarians found</div>
+                  ) : (
+                    vets.map((v) => (
+                      <SelectItem key={v.id} value={v.id}>
+                        {formatStaffName(v.first_name, v.last_name, 'veterinarian')}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <div className="space-y-2">

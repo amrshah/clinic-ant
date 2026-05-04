@@ -64,14 +64,14 @@ export interface MedicalRecord {
   type: 'vaccination' | 'prescription' | 'diagnosis' | 'procedure' | 'lab-result' | 'note'
   title: string
   description: string
-  veterinarian?: string
-  vet_id?: string
+  veterinarian_id: string | null
   attachments?: string[] | null
   clinic_id: string
   created_at: string
   updated_at: string
   // Joined relations
   pets?: { id: string; name: string; species: string } | null
+  vet?: { id: string; first_name: string; last_name: string } | null
 }
 
 export interface AgentSettings {

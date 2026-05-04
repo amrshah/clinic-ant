@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
 
   let query = ctx.supabase
     .from('medical_records')
-    .select('*, pets(id, name, species)')
+    .select('*, pets(id, name, species), vet:profiles!veterinarian_id(id, first_name, last_name)')
     .eq('clinic_id', ctx.profile.clinic_id)
 
   if (petId) {
@@ -47,9 +47,9 @@ export async function POST(req: NextRequest) {
       ...body,
       organization_id: ctx.profile.org_id,
       clinic_id: targetClinicId,
-      veterinarian_id: ctx.user.id,
+      veterinarian_id: body.veterinarian_id || ctx.user.id,
     })
-    .select('*, pets(id, name, species)')
+    .select('*, pets(id, name, species), vet:profiles!veterinarian_id(id, first_name, last_name)')
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

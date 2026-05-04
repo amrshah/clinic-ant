@@ -14,6 +14,7 @@ import {
   Syringe, Stethoscope, Pill, FlaskConical, StickyNote, CreditCard,
 } from 'lucide-react'
 import { PetFormDialog } from './pet-form-dialog'
+import { formatStaffName } from '@/lib/utils'
 
 interface PetDetailContentProps { petId: string }
 
@@ -126,7 +127,7 @@ export function PetDetailContent({ petId }: PetDetailContentProps) {
                           <div className="flex items-start justify-between gap-2">
                             <div>
                               <p className="font-medium">{record.title}</p>
-                              <p className="text-sm text-muted-foreground">{record.veterinarian ?? 'N/A'} - {new Date(record.date).toLocaleDateString()}</p>
+                              <p className="text-sm text-muted-foreground">{record.vet ? formatStaffName(record.vet.first_name, record.vet.last_name, 'veterinarian') : 'N/A'} - {new Date(record.date).toLocaleDateString()}</p>
                             </div>
                             <Badge variant="outline" className="capitalize">{record.type.replace('-', ' ')}</Badge>
                           </div>

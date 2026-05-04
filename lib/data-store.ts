@@ -191,6 +191,14 @@ export function useAppointments() {
   return { appointments: data ?? [], error, isLoading }
 }
 
+// === Staff ===
+export function useStaff() {
+  const { currentClinicId } = useClinic()
+  const key = currentClinicId ? `/api/users?clinicId=${currentClinicId}` : '/api/users'
+  const { data, error, isLoading } = useSWR<any[]>(key, fetcher)
+  return { staff: data ?? [], error, isLoading }
+}
+
 export async function addAppointment(body: Record<string, unknown>, clinicId?: string) {
   const url = clinicId ? `/api/appointments?clinicId=${clinicId}` : '/api/appointments'
   const res = await fetch(url, {

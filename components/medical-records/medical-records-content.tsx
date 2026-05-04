@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Plus, Search, FileText, Syringe, Stethoscope, Pill, FlaskConical, StickyNote } from 'lucide-react'
 import Link from 'next/link'
 import { MedicalRecordFormDialog } from './medical-record-form-dialog'
+import { formatStaffName } from '@/lib/utils'
 
 type TypeFilter = MedicalRecord['type'] | 'all'
 
@@ -40,7 +41,7 @@ export function MedicalRecordsContent() {
         record.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         record.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         petName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (record.veterinarian ?? '').toLowerCase().includes(searchQuery.toLowerCase())
+        (record.vet ? formatStaffName(record.vet.first_name, record.vet.last_name, 'veterinarian') : '').toLowerCase().includes(searchQuery.toLowerCase())
       const matchesType = typeFilter === 'all' || record.type === typeFilter
       return matchesSearch && matchesType
     })
@@ -110,7 +111,7 @@ export function MedicalRecordsContent() {
                           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                             <Link href={`/pets/${record.pet_id}`} className="font-medium text-foreground hover:text-primary transition-colors">{record.pets?.name ?? 'Unknown'}</Link>
                             <span>-</span>
-                            <span>{record.veterinarian ?? 'N/A'}</span>
+                            <span>{record.vet ? formatStaffName(record.vet.first_name, record.vet.last_name, 'veterinarian') : 'N/A'}</span>
                             <span>-</span>
                             <span>{new Date(record.date).toLocaleDateString('en-CA', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                           </div>
