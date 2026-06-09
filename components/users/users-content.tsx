@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { ShieldCheck, MoreHorizontal, UserCog, Trash2, ShieldAlert } from 'lucide-react'
+import { formatStaffName } from '@/lib/utils'
 
 interface StaffProfile {
   id: string
@@ -102,10 +103,12 @@ export function UsersContent() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell className="font-medium">{[u.first_name, u.last_name].filter(Boolean).join(' ') || 'Unnamed'}</TableCell>
-                    <TableCell>{u.email}</TableCell>
+                  {users.map((u) => (
+                    <TableRow key={u.id}>
+                      <TableCell className="font-medium">
+                        {formatStaffName(u.first_name || '', u.last_name || '', u.role || undefined)}
+                      </TableCell>
+                      <TableCell>{u.email}</TableCell>
                     <TableCell>
                       {canEdit && u.id !== profile?.id ? (
                         <Select value={u.role ?? ''} onValueChange={(v) => setChangingRole({ user: u, newRole: v as UserRole })}>

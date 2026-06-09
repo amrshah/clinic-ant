@@ -16,13 +16,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }, observerOptions);
 
+    // Immediately reveal elements that are already in the viewport (above the fold)
     document.querySelectorAll('.reveal').forEach(el => {
         observer.observe(el);
+        // Force-trigger elements already in view on load
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+            el.classList.add('active');
+        }
     });
 
-    // Hero Parallax Effect
+    // Hero Parallax Effect (desktop only)
     const heroVisual = document.querySelector('.hero-visual');
-    if (heroVisual) {
+    if (heroVisual && window.innerWidth > 968) {
         window.addEventListener('mousemove', (e) => {
             const { clientX, clientY } = e;
             const x = (clientX - window.innerWidth / 2) / 50;

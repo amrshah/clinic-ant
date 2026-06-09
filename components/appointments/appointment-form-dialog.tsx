@@ -18,6 +18,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import useSWR from 'swr'
 import { useClinic } from '@/components/providers/clinic-provider'
+import { formatStaffName } from '@/lib/utils'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
@@ -281,7 +282,7 @@ export function AppointmentFormDialog({ open, onOpenChange, appointment }: Appoi
                 ) : (
                   vets.map((v) => (
                     <ShadcnSelectItem key={v.id} value={v.id}>
-                      Dr. {v.first_name} {v.last_name}
+                      {formatStaffName(v.first_name, v.last_name, 'veterinarian')}
                     </ShadcnSelectItem>
                   ))
                 )}

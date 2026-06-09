@@ -41,7 +41,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-6 flex h-20 w-full max-w-[220px] items-center justify-center overflow-hidden rounded-xl border bg-card p-2 shadow-sm">
+          <div className="mx-auto mb-6 flex h-20 w-full max-w-[220px] items-center justify-center overflow-hidden bg-card p-2 shadow-sm">
             <Image
               src="/clinicflow-logo.webp"
               alt="Clinic Flow Logo"
@@ -51,7 +51,6 @@ export default function LoginPage() {
               priority
             />
           </div>
-          <CardTitle className="text-2xl font-bold">Clinic Flow</CardTitle>
           <CardDescription>Sign in to your clinic dashboard</CardDescription>
         </CardHeader>
         <form onSubmit={handleLogin}>
@@ -87,7 +86,7 @@ export default function LoginPage() {
               />
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col gap-3">
+          <CardFooter className="flex flex-col gap-3 pt-2">
             <Button type="submit" className="w-full" disabled={loading}>
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Sign In

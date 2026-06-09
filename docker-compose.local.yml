@@ -2,47 +2,24 @@ services:
   clinic-flow:
     build:
       context: .
+      # Local build picks up these from your .env file automatically
       args:
         - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
         - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
         - NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN}
         - NEXT_PUBLIC_APP_VERSION=${NEXT_PUBLIC_APP_VERSION}
     ports:
-      - "3500:3000"
-    # env_file removed to avoid dependency on committed secrets
+      - "3000:3000"
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
       - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
-      - CLOUDFLARED_TOKEN=${CLOUDFLARED_TOKEN}
-      - SENTRY_DSN=${SENTRY_DSN}
-      - NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN}
-      - NEXT_PUBLIC_APP_VERSION=${NEXT_PUBLIC_APP_VERSION}
     restart: always
-    networks:
-      - clinic-network
 
   marketing-site:
     build:
       context: ./marketing
     ports:
-      - "8080:80"
+      - "8081:80" # Use a different port than production to avoid conflicts
     restart: always
-    networks:
-      - clinic-network
-
-  gateway:
-    build:
-      context: .
-      dockerfile: gateway/Dockerfile
-    restart: always
-    depends_on:
-      - clinic-flow
-      - marketing-site
-    networks:
-      - clinic-network
-
-networks:
-  clinic-network:
-    driver: bridge

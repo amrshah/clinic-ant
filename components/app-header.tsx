@@ -12,6 +12,7 @@ import {
 import { useSidebar } from '@/components/ui/sidebar'
 import { useAuth } from '@/components/providers/auth-provider'
 import { ROLE_LABELS } from '@/lib/permissions'
+import { formatStaffName } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,7 +36,7 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
     : 'U'
 
   const displayName = profile
-    ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') || profile.email
+    ? formatStaffName(profile.first_name || '', profile.last_name || '', profile.role) || profile.email
     : ''
 
   return (

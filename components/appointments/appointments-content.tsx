@@ -15,6 +15,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Plus, MoreHorizontal, Edit, Trash2, Calendar, Check, X, Clock, Play, LogIn, Stethoscope, Receipt } from 'lucide-react'
 import Link from 'next/link'
 import { AppointmentFormDialog } from '@/components/appointments/appointment-form-dialog'
+import { formatStaffName } from '@/lib/utils'
 
 type StatusFilter = Appointment['status'] | 'all'
 type TypeFilter = Appointment['type'] | 'all'
@@ -179,31 +180,31 @@ export function AppointmentsContent() {
                     <TableHead>Pet</TableHead>
                     <TableHead className="hidden sm:table-cell">Owner</TableHead>
                     <TableHead>Type</TableHead>
-                    <TableHead className="hidden md:table-cell">Veterinarian</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="w-10"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredAppointments.map((apt) => (
-                    <TableRow key={apt.id}>
-                      <TableCell>
-                        <div>
-                          <p className="font-medium">
-                            {apt.date ? new Date(apt.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }) : 'No Date'}
-                          </p>
-                          <p className="text-sm text-muted-foreground">{apt.time || 'No Time'}</p>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Link href={`/pets/${apt.pet_id}`} className="font-medium hover:text-primary transition-colors">{apt.pets?.name ?? 'Unknown'}</Link>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Link href={`/owners/${apt.owner_id}`} className="hover:text-primary transition-colors">{apt.owners?.display_name ?? 'Unknown'}</Link>
-                      </TableCell>
-                      <TableCell><Badge variant="outline" className="capitalize">{apt.type.replace('-', ' ')}</Badge></TableCell>
-                      <TableCell className="hidden md:table-cell">{apt.vet ? `Dr. ${apt.vet.first_name} ${apt.vet.last_name}` : 'N/A'}</TableCell>
-                      <TableCell>{getStatusBadge(apt.status)}</TableCell>
+                      <TableHead className="hidden md:table-cell">Veterinarian</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead className="w-10"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredAppointments.map((apt) => (
+                      <TableRow key={apt.id}>
+                        <TableCell>
+                          <div>
+                            <p className="font-medium">
+                              {apt.date ? new Date(apt.date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric' }) : 'No Date'}
+                            </p>
+                            <p className="text-sm text-muted-foreground">{apt.time || 'No Time'}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Link href={`/pets/${apt.pet_id}`} className="font-medium hover:text-primary transition-colors">{apt.pets?.name ?? 'Unknown'}</Link>
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell">
+                          <Link href={`/owners/${apt.owner_id}`} className="hover:text-primary transition-colors">{apt.owners?.display_name ?? 'Unknown'}</Link>
+                        </TableCell>
+                        <TableCell><Badge variant="outline" className="capitalize">{apt.type.replace('-', ' ')}</Badge></TableCell>
+                        <TableCell className="hidden md:table-cell">{apt.vet ? formatStaffName(apt.vet.first_name, apt.vet.last_name, 'veterinarian') : 'N/A'}</TableCell>
+                        <TableCell>{getStatusBadge(apt.status)}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {/* Quick Actions based on current status */}
